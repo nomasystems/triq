@@ -1,0 +1,17 @@
+image: erlang
+
+build:
+  stage: build
+  script:
+    - make
+  artifacts:
+    paths:
+      - ebin
+      - deps
+      - doc
+      - priv
+
+test:
+  stage: test
+  script:
+    - make eunit
