@@ -42,6 +42,19 @@
          command_names/1,
          zip/2]).
 
+-type state() :: term().
+-type command() :: {call, atom(), atom(), [_]}.
+-callback(initial_state() ->
+                  state()).
+-callback(command(state()) ->
+                command()).
+-callback(precondition(state(),command()) ->
+                 boolean()).
+-callback(postcondition(state(),command(), term()) ->
+                 boolean()).
+-callback(next_state(state(),term(), command()) ->
+                 term()).
+
 
 commands(Module) ->
     domain(commands,
@@ -112,11 +125,11 @@ commands_shrink(Module,SymbolicStates,Domains, Dom, Commands,Tries) ->
     true = (Len > 0),
 
     %% choose a segment of commands to delete...
-    RemIdx = random:uniform(Len),
+    RemIdx = triq_rnd:uniform(Len),
     RemLen = if RemIdx==Len ->
                      0;
                 true ->
-                     random:uniform(?MIN(5, Len-RemIdx))
+                     triq_rnd:uniform(?MIN(5, Len-RemIdx))
              end,
 
     NewCommands = without(RemIdx,RemLen,Commands),

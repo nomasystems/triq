@@ -74,6 +74,7 @@
          largeint/0,
          byte/0,
          real/0,
+         float/0,
          sized/1,
          elements/1,
          any/0,
