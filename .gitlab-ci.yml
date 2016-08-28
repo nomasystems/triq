@@ -28,7 +28,7 @@ cache:
     # Create dummy PLT until we actually run Dialyzer.
     - mkdir -p .rebar && echo dummy > .rebar/triq_dummy_plt
     # Remove files in .rebar/ that shouldn't be cached.
-    - rm -fv .rebar/erlcinfo
+    - rm -f .rebar/erlcinfo
 
 .artifact_paths_template: &artifact_paths_defitinion
   paths:
