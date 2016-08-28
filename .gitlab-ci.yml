@@ -1,17 +1,58 @@
-image: erlang
+variables:
+  GIT_DEPTH: "3"
 
-build:
+cache:
+  key: $CI_PROJECT_PATH
+  paths:
+    - .rebar/triq_*_plt
+
+.build_job_template: &build_job_definition
+  image: erlang:17
   stage: build
   script:
     - make
-  artifacts:
-    paths:
-      - ebin
-      - deps
-      - doc
-      - priv
+    # Create dummy PLT until we actually run Dialyzer.
+    - mkdir -p .rebar && echo dummy > .rebar/triq_dummy_plt
+    # Remove files in .rebar/ that shouldn't be cached.
+    - rm -fv .rebar/erlcinfo
 
-test:
+.artifact_paths_template: &artifact_paths_defitinion
+  paths:
+    - ebin
+    - doc
+
+default-build:
+  <<: *build_job_definition
+  artifacts:
+    name: "$CI_PROJECT_NAME-ci-${CI_BUILD_REF_NAME}"
+    <<: *artifact_paths_defitinion
+    # Temporary artifacts for non-release builds are removed after a week
+    # because they are just for use in test jobs.
+    expire_in: 1 week
+
+release:
+  <<: *build_job_definition
+  artifacts:
+    name: "$CI_PROJECT_NAME-${CI_BUILD_REF_NAME}"
+    <<: *artifact_paths_defitinion
+  only:
+    - tags
+
+.test_job_template: &test_job_definition
   stage: test
   script:
     - make eunit
+  dependencies:
+    - default-build
+
+test:17:
+  <<: *test_job_definition
+  image: erlang:17
+
+test:18:
+  <<: *test_job_definition
+  image: erlang:18
+
+test:19:
+  <<: *test_job_definition
+  image: erlang:19
