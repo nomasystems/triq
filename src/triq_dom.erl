@@ -39,6 +39,9 @@
 %% how many times we try to shrink a value before we bail out
 -define(SHRINK_LOOPS,100).
 
+%% A number large enough to trigger the Erlang bignum implementation
+-define(BIGNUM, trunc(math:pow(2, 65) * 2)).
+
 %% @type pick_fun(T). Picks members of the `domain(T)'.
 %% Return pair of `{domain(T),T}'; the "output domain" is what will
 %% be used for shrinking the value.
@@ -91,6 +94,7 @@
 -record(tuple, {elem}).
 -record(vector,{size, elem}).
 -record(binary,{size}).
+-record(bitstring,{size}).
 -record(atom,  {size}).
 -record(oneof, {size, elems=[]}).
 -record(resize,{size, dom}).
@@ -110,6 +114,7 @@
          int/0,
          int/1,
          int/2,
+         largeint/0,
          byte/0,
          real/0,
          float/0,
@@ -127,6 +132,8 @@
          vector/2,
          binary/1,
          binary/0,
+         bitstring/0,
+         bitstring/1,
          non_empty/1,
          resize/2,
          non_neg_integer/0,
@@ -624,6 +631,32 @@ pos_integer() ->
              end
        }.
 
+%% @doc The domain of "big" integers.
+%%
+%% Note, this is sized to ensure it remains a big integer, even on 64
+%% bit implementations.
+%% @spec largeint() -> domrec(largeint()).
+largeint() ->
+    #?DOM{
+        kind=largeint,
+        shrink=fun(Dom,Val) when Val>1 -> {Dom,Val / 10};
+                  (Dom,Val) when Val<1 -> {Dom,Val / 10};
+                  (Dom,_) -> {Dom,0}
+               end,
+        pick=fun(Dom,SampleSize) ->
+                     {Dom,
+                      ?BIGNUM
+                      * SampleSize * random:uniform()
+                      * case random:uniform(2) of
+                            2 ->
+                                -1;
+                            1 ->
+                                1
+                        end
+                      }
+             end
+       }.
+
 
 -spec(float() ->domrec(float())).
 float() ->
@@ -716,7 +749,52 @@ binary_shrink(#?DOM{kind=#binary{size=Size}, empty_ok=EmptyOK}=BinDom,
         NewList -> {BinDom, list_to_binary(NewList)}
     end.
 
+%% @doc The domain of bitstrings
+%% @spec bitstring() -> domain(bitstring())
+-spec bitstring() -> domrec(bitstring()).
+bitstring() ->
+    #?DOM{kind=#bitstring{size=any},
+          pick=fun bitstring_pick/2,
+          shrink=fun bitstring_shrink/2}.
 
+-spec bitstring(Size::non_neg_integer()) -> domrec(bitstring()).
+bitstring(Size) ->
+    #?DOM{kind=#bitstring{size=Size},
+          pick=fun bitstring_pick/2,
+          shrink=fun bitstring_shrink/2}.
+
+bitstring_pick(#?DOM{kind=#bitstring{size=Size}, empty_ok=EmptyOK}=BinDom,
+            SampleSize) ->
+    Sz = case Size of
+             any ->
+                 case EmptyOK of
+                     true ->
+                         random:uniform(SampleSize)-1;
+                     false ->
+                         random:uniform(SampleSize)
+                 end;
+             Size ->
+                 Size
+         end,
+    BinValue = list_to_bitstring(foldn(fun(T) ->
+                                               Int = random:uniform(256) - 1,
+                                               Bit = random:uniform(8),
+                                               [<<Int:Bit>> | T]
+                                       end, [], Sz)),
+    {BinDom, BinValue}.
+
+bitstring_shrink(#?DOM{kind=#bitstring{size=Size}, empty_ok=EmptyOK}=BinDom,
+                 BinValue) ->
+    List = bitstring_to_list(BinValue),
+    Length = byte_size(BinValue),
+    AllowSmaller = allow_smaller(Length,Size,EmptyOK),
+    case shrink_list_with_elemdom(int(), List, Length, AllowSmaller) of
+        List -> {BinDom, BinValue};
+        NewList -> {BinDom, list_to_bitstring(NewList)}
+    end.
+
+%% @doc The domain of atoms
+%% @spec int() -> domain(integer())
 -spec atom() -> domrec(atom()).
 atom() ->
     #?DOM{kind=#atom{size=any},
