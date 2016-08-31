@@ -29,7 +29,7 @@
 -define(CHECK,check).
 
 parse_transform(Forms, Options) ->
-%    io:format("FORMS ~n~p~n", [Forms]),
+    %% io:format("FORMS ~n~p~n", [Forms]),
     PropPrefix = proplists:get_value(triq_prop_prefix, Options,
                                      ?DEFAULT_PROP_PREFIX),
     F = fun (Form, Set) ->
@@ -57,7 +57,6 @@ t_form(_, S, _) ->
 
 
 assertion(Name, Line) ->
-
     TestName = list_to_atom(string:substr(Name, 6) ++"_test_"),
 
     {function,Line,TestName,0,
@@ -119,11 +118,9 @@ assertion(Name, Line) ->
                                       {nil,Line}}}}}}]}]}]}]}]}]}},
                     []}]}]}]}}]}]}]}]}.
 
-add_eunit([Form| []], Eunit) ->
-   
+add_eunit([Form|[]], Eunit) ->
     [Form|Eunit];
 add_eunit([Form|Rest], Eunit) ->
-
     [Form|add_eunit(Rest,Eunit)];
 add_eunit([],_Eunit ) ->
     [].
@@ -134,7 +131,6 @@ t_eunit_form({function, L, Name, 0, _Cs}, S, PropPrefix) ->
     case lists:prefix(PropPrefix, N) of
         true ->
             Assertion = assertion(N, L),
-            
             sets:add_element(Assertion, S);
         false ->
             S
@@ -149,7 +145,7 @@ t_rewrite([{attribute,_,module,Name}=M | Fs], Exports) ->
 t_rewrite([F | Fs], Exports) ->
     [F | t_rewrite(Fs, Exports)];
 t_rewrite([], _Exports) ->
-    [].    %% fail-safe, in case there is no module declaration
+    [].            % fail-safe, in case there is no module declaration
 
 rewrite([{function,_,?CHECK,0,_}=F | Fs], As, Module, _GenQC) ->
     rewrite(Fs, [F | As], Module, false);
