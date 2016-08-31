@@ -208,8 +208,9 @@ do_run_command(Commands, Env, Module, History, State) ->
             case Module:postcondition(State,SubstCall,Res) of
                 true ->
                     Env2 = [{V,Res}|proplists:delete(V,Env)],
-                    State2 = Module:next_state(State,Var,SymCall),
-                    do_run_command(Rest, Env2, Module, History2, State2);
+                    State2 = Module:next_state(State,Res,SymCall),
+                    State3 = eval(Env2, State2),
+                    do_run_command(Rest, Env2, Module, History2, State3);
 
                 Other ->
                     {History, eval(Env,State), {postcondition, Other}}
