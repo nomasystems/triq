@@ -57,7 +57,7 @@ t_form(_, S, _) ->
 
 
 assertion(Name, Line) ->
-    TestName = list_to_atom(string:substr(Name, 6) ++"_test_"),
+    TestName = list_to_atom(string:substr(Name, 6) ++ "_test_"),
 
     {function,Line,TestName,0,
      [{clause,Line,[],[],
