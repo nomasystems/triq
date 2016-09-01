@@ -646,8 +646,8 @@ largeint() ->
         pick=fun(Dom,SampleSize) ->
                      {Dom,
                       ?BIGNUM
-                      * SampleSize * random:uniform()
-                      * case random:uniform(2) of
+                      * SampleSize * triq_rnd:uniform()
+                      * case triq_rnd:uniform(2) of
                             2 ->
                                 -1;
                             1 ->
@@ -769,16 +769,16 @@ bitstring_pick(#?DOM{kind=#bitstring{size=Size}, empty_ok=EmptyOK}=BinDom,
              any ->
                  case EmptyOK of
                      true ->
-                         random:uniform(SampleSize)-1;
+                         triq_rnd:uniform(SampleSize)-1;
                      false ->
-                         random:uniform(SampleSize)
+                         triq_rnd:uniform(SampleSize)
                  end;
              Size ->
                  Size
          end,
     BinValue = list_to_bitstring(foldn(fun(T) ->
-                                               Int = random:uniform(256) - 1,
-                                               Bit = random:uniform(8),
+                                               Int = triq_rnd:uniform(256) - 1,
+                                               Bit = triq_rnd:uniform(8),
                                                [<<Int:Bit>> | T]
                                        end, [], Sz)),
     {BinDom, BinValue}.
