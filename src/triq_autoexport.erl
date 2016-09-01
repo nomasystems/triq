@@ -36,12 +36,9 @@ parse_transform(Forms, Options) ->
                 t_form(Form, Set, PropPrefix)
         end,
     Exports = sets:to_list(lists:foldl(F, sets:new(), Forms)),
-    EUnitGen = fun (Form, Set) ->
-                       t_eunit_form(Form, Set, PropPrefix)
-               end,
-    Eunit = sets:to_list(lists:foldl(EUnitGen, sets:new(), Forms)),
+    EUnit = maybe_gen_eunit(PropPrefix, Forms),
     Forms1 = t_rewrite(Forms, Exports),
-    add_eunit(Forms1, Eunit).
+    add_eunit(Forms1, EUnit).
 
 
 t_form({function, _L, Name, 0, _Cs}, S, PropPrefix) ->
@@ -55,6 +52,23 @@ t_form({function, _L, Name, 0, _Cs}, S, PropPrefix) ->
 t_form(_, S, _) ->
     S.
 
+maybe_gen_eunit(PropPrefix, Forms) ->
+    TriqAttrs = lists:foldl(
+                  fun({attribute,_,triq,Val}, Acc) ->
+                          [Val|Acc];
+                     (_, Acc) ->
+                          Acc
+                  end,
+                  [], Forms),
+    case proplists:get_bool(eunit, TriqAttrs) of
+        true ->
+            EUnitGen = fun(Form, Set) ->
+                               t_eunit_form(Form, Set, PropPrefix)
+                       end,
+            sets:to_list(lists:foldl(EUnitGen, sets:new(), Forms));
+        false ->
+            []
+    end.
 
 assertion(Name, Line) ->
     TestName = list_to_atom(string:substr(Name, 6) ++ "_test_"),
