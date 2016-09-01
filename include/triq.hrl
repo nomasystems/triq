@@ -18,6 +18,7 @@
 %% limitations under the License.
 %%
 
+-define(LAZY(X), DELAY(X)).
 -define(DELAY(X), fun()->X end).
 -define(FORCE(X), (X)() ).
 -define(DOMAIN_MODULE, triq_dom).
@@ -33,6 +34,8 @@
         {'prop:trapexit', ?DELAY(Property), ??Property}).
 -define(TIMEOUT(Limit,Property),
         {'prop:timeout', Limit, ?DELAY(Property), ??Property}).
+-define(SETUP(SetupFun,Property),
+        {'prop:setup', SetupFun, ?DELAY(Property), ??Property}).
 
 %%
 %% import property functions
@@ -68,6 +71,7 @@
          int/0,
          int/1,
          int/2,
+         largeint/0,
          byte/0,
          real/0,
          float/0,
@@ -85,6 +89,8 @@
          vector/2,
          binary/1,
          binary/0,
+         bitstring/0,
+         bitstring/1,
          non_empty/1,
          resize/2,
          non_neg_integer/0,
