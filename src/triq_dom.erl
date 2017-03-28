@@ -794,7 +794,7 @@ bitstring_shrink(#?DOM{kind=#bitstring{size=Size}, empty_ok=EmptyOK}=BinDom,
     end.
 
 %% @doc The domain of atoms
-%% @spec int() -> domain(integer())
+%% @spec atom() -> domain(integer())
 -spec atom() -> domrec(atom()).
 atom() ->
     #?DOM{kind=#atom{size=any},
