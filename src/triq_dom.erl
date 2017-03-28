@@ -635,7 +635,7 @@ pos_integer() ->
 %%
 %% Note, this is sized to ensure it remains a big integer, even on 64
 %% bit implementations.
-%% @spec largeint() -> domrec(largeint()).
+%% @spec largeint() -> domrec(largeint())
 largeint() ->
     #?DOM{
         kind=largeint,
