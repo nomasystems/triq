@@ -635,7 +635,7 @@ pos_integer() ->
 %%
 %% Note, this is sized to ensure it remains a big integer, even on 64
 %% bit implementations.
-%% @spec largeint() -> domrec(largeint()).
+%% @spec largeint() -> domrec(largeint())
 largeint() ->
     #?DOM{
         kind=largeint,
@@ -794,7 +794,7 @@ bitstring_shrink(#?DOM{kind=#bitstring{size=Size}, empty_ok=EmptyOK}=BinDom,
     end.
 
 %% @doc The domain of atoms
-%% @spec int() -> domain(integer())
+%% @spec atom() -> domain(integer())
 -spec atom() -> domrec(atom()).
 atom() ->
     #?DOM{kind=#atom{size=any},
