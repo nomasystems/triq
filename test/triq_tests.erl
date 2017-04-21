@@ -188,6 +188,11 @@ vector_test() ->
     [L] = triq:counterexample(?FORALL(_, vector(4, choose(3,7)), false)),
     [3,3,3,3] = L.
 
+choose_test_() ->
+    [?_assertEqual([3], triq:counterexample(?FORALL(_, choose(3,7), false))),
+     ?_assertEqual([7], triq:counterexample(?FORALL(I, choose(3,7), I < 7))),
+     ?_assertEqual([3], triq:counterexample(?FORALL(_, choose(3,3), false)))].
+
 %%
 %% Test binary shrinking
 %%

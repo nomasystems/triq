@@ -1135,7 +1135,7 @@ resize(Sz,Dom) ->
          }.
 
 -spec choose(M::integer(), N::integer()) -> domrec(integer()).
-choose(M,N) when is_integer(M), is_integer(N), M<N ->
+choose(M,N) when is_integer(M), is_integer(N), M=<N ->
     #?DOM{kind={choose,M,N},
           pick = fun choose_pick/2,
           shrink = fun choose_shrink/2
