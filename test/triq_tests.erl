@@ -171,8 +171,10 @@ oneof_test() ->
                             is_integer(X) == is_integer(Y)
                         end
                        )),
+    %% One variable must be equal to 0 and absolute value of the other must not
+    %% be greater than 1.
     %% Note: 0 == 0.0
-    ?assert((X == 0) and (Y == 0)).
+    ?assert((X * Y == 0) and (X + Y /= 0) and (abs(X) + abs(Y) =< 1)).
 
 %%
 %% This test makes sure that X shrinks only to 3.
@@ -215,6 +217,18 @@ elements_test() ->
                      elements([one,two,three]),
                      false)),
     one = X.
+
+suchthat_shrinking_test() ->
+    ?assertEqual(
+        [2],
+        triq:counterexample(
+          ?FORALL(
+             _,
+             ?SUCHTHAT(
+                X,
+                non_neg_integer(),
+                X > 1),
+             false))).
 
 %%
 %% Test passing counterexamples to properties

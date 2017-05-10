@@ -33,7 +33,8 @@
 -define(SIZED(Size,Gen),
         sized(fun(Size) -> Gen end)).
 
-%% How many times we try pick a value in order to satisfy a ?SUCHTHAT property.
+%% How many times we try to pick or shrink a value in order to satisfy a
+%% ?SUCHTHAT property.
 -define(SUCHTHAT_LOOPS,100).
 
 %% how many times we try to shrink a value before we bail out
@@ -1026,18 +1027,35 @@ bindshrink2(OrigBox1,Box1,Box2,Fun,SampleSize) ->
 -spec suchthat(domain(T),fun((T) -> boolean())) -> domain(T).
 suchthat(Dom,Predicate) ->
     #?DOM{kind=#suchthat{dom=Dom,pred=Predicate},
-          pick=fun(#?DOM{kind=#suchthat{dom=Dom1,pred=Fun1}},SampleSize) ->
-                       suchthat_loop(?SUCHTHAT_LOOPS,Dom1,Fun1,SampleSize)
-               end
-         }.
+          pick=fun suchthat_pick/2,
+          shrink=fun suchthat_shrink/2}.
 
-suchthat_loop(0,_,_,_) ->
+suchthat_pick(#?DOM{kind=#suchthat{dom=Dom,pred=Pred}},SampleSize) ->
+    suchthat_pick_loop(?SUCHTHAT_LOOPS,Dom,Pred,SampleSize).
+
+suchthat_shrink(#?DOM{kind=#suchthat{dom=Dom,pred=Pred}},Val) ->
+    suchthat_shrink_loop(?SUCHTHAT_LOOPS, Dom, Pred, Val).
+
+suchthat_pick_loop(0,_,_,_) ->
     erlang:exit(suchthat_failed);
-suchthat_loop(N,Dom,Fun,SampleSize) ->
+suchthat_pick_loop(N,Dom,Pred,SampleSize) ->
     {ValDom,Val} = pick(Dom,SampleSize),
-    case Fun(Val) of
-        true -> {ValDom,Val};
-        _ -> suchthat_loop(N-1, Dom, Fun, SampleSize)
+    case Pred(Val) of
+        true -> {suchthat(ValDom, Pred), Val};
+        _ -> suchthat_pick_loop(N-1, Dom, Pred, SampleSize)
+    end.
+
+suchthat_shrink_loop(0, Dom, Pred, Val) ->
+    {suchthat(Dom, Pred), Val};
+suchthat_shrink_loop(N, Dom, Pred, Val) ->
+    case shrink(Dom, Val) of
+        {Dom, Val} ->
+            {suchthat(Dom, Pred), Val};
+        {ShrinkedDom, ShrinkedVal} ->
+            case Pred(ShrinkedVal) of
+                true -> {suchthat(ShrinkedDom, Pred), ShrinkedVal};
+                _ -> suchthat_shrink_loop(N - 1, Dom, Pred, Val)
+            end
     end.
 
 
