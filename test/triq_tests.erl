@@ -145,6 +145,15 @@ list_shrink_test() ->
                                       )
                      end, lists:seq(1,100)).
 
+non_empty_list_shrink_test() ->
+    ?assert(
+       lists:all(
+         fun(_) ->
+                 [[0]] =:= triq:counterexample(
+                           ?FORALL(_, non_empty(list(int())), false))
+         end,
+         lists:seq(1, 25))).
+
 %list_shrink2_testx() ->
 %    %% test that a list doesn't easily end in a local 'smallest counterexample'
 %    true = lists:all(fun(_) ->

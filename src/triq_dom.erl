@@ -469,35 +469,42 @@ list_shrink(#?DOM{kind={shrinkable_list, ListDom, Len}, empty_ok=EmptyOK},
     end.
 
 shorter_list(ListDom,List,Len,EmptyOK) ->
-    case triq_rnd:uniform(3) of
-        1 -> %% Remove one element.
-            RemIdx = triq_rnd:uniform(Len),
-            shrinkable_list(without(RemIdx, ListDom), without(RemIdx, List),
-                            Len-1, EmptyOK);
-        2 -> %% Remove or keep a random sublist.
-            Idx1 = triq_rnd:uniform(Len),
-            Idx2 = triq_rnd:uniform(Len),
-            if Idx1 < Idx2 ->         % Remove the sublist [Idx1;Idx2]
-                    shrinkable_list( without(Idx1,Idx2, ListDom),
-                                     without(Idx1,Idx2, List),
-                                     Len-(Idx2-Idx1), EmptyOK);
-               true ->                % Remove all but the sublist [Idx2;Idx1]
-                    NewLen = Idx1-Idx2+1,
-                    shrinkable_list( lists:sublist(ListDom, Idx2, NewLen),
-                                     lists:sublist(List   , Idx2, NewLen),
-                                     NewLen, EmptyOK)
-            end;
-        3 -> %% Remove a random sublist.
-            Zipped = lists:zip(ListDom, List),
-            TrueTreshold  = triq_rnd:uniform(),
-            FalseTreshold = triq_rnd:uniform(),
-            %% This may happen to be the original list again.
-            Pruned = markov_prune_list(Zipped, TrueTreshold, FalseTreshold,
-                                       false),
-            NewLen = length(Pruned),
-            {ListDom2,List2} = lists:unzip(Pruned),
-            shrinkable_list( ListDom2, List2, NewLen, EmptyOK)
-    end.
+    {ShorterListDom, ShorterList, ShorterLen} =
+        case triq_rnd:uniform(3) of
+            1 -> %% Remove one element.
+                RemIdx = triq_rnd:uniform(Len),
+                {without(RemIdx, ListDom), without(RemIdx, List), Len-1};
+            2 -> %% Remove or keep a random sublist.
+                Idx1 = triq_rnd:uniform(Len),
+                Idx2 = triq_rnd:uniform(Len),
+                if Idx1 < Idx2 -> %% Remove the sublist [Idx1;Idx2]
+                        {without(Idx1,Idx2, ListDom),
+                         without(Idx1,Idx2, List),
+                         Len-(Idx2-Idx1)};
+                   true -> %% Remove all but the sublist [Idx2;Idx1]
+                        ShorterLen1 = Idx1-Idx2+1,
+                        {lists:sublist(ListDom, Idx2, ShorterLen1),
+                         lists:sublist(List, Idx2, ShorterLen1),
+                         ShorterLen1}
+                end;
+            3 -> %% Remove a random sublist.
+                Zipped = lists:zip(ListDom, List),
+                TrueTreshold  = triq_rnd:uniform(),
+                FalseTreshold = triq_rnd:uniform(),
+                %% This may happen to be the original list again.
+                Pruned = markov_prune_list(Zipped, TrueTreshold, FalseTreshold,
+                                           false),
+                {ListDom2,List2} = lists:unzip(Pruned),
+                {ListDom2, List2, length(Pruned)}
+        end,
+    {NewListDom, NewList, NewLen} =
+        case {EmptyOK, ShorterLen} of
+            {false, 0} ->
+                {ListDom, List, Len};
+            _ ->
+                {ShorterListDom, ShorterList, ShorterLen}
+        end,
+    shrinkable_list(NewListDom, NewList, NewLen, EmptyOK).
 
 markov_prune_list([], _,_,_) -> [];
 markov_prune_list([H|T], TrueTreshold, FalseTreshold, Prev) ->
