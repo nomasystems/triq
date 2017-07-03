@@ -54,7 +54,6 @@
                context=[],
                size=?TEST_COUNT,  %% todo: remove this
                run_iter=?TEST_COUNT,
-               report= fun report_none/2,
                shrinking= false,
                result=undefined,
                body,
@@ -67,35 +66,10 @@ load_rand_module() ->
     {ok, triq_rnd} = triq_rand_compat:init("triq_rnd"),
     ok.
 
-%%
-%% Default reporting function, ... is silent
-%%
-report_none(pass, _) ->
-    ok;
-report_none(fail, _) ->
-    ok;
-report_none(skip, _) ->
-    ok.
-
-%%
-%% Reporting function used while testing, prints "..xxxx Failed!"
-%%
-report(pass,_) ->
-    io:format(".");
-report(skip,_) ->
-    io:format("x");
-report(fail,false) ->
-    io:format("Failed!~n");
-report(fail,Value) ->
-    io:format("Failed with: ~p~n", [Value]).
-
-%%
-%%
-%%
-check_input(Fun,Input,IDom,#triq{count=Count,report=DoReport}=QCT) ->
+check_input(Fun,Input,IDom,#triq{count=Count}=QCT) ->
     try Fun(Input) of
         true ->
-            DoReport(pass,true),
+            report(pass,true),
             {success, Count+1};
 
         {success, NewCount} ->
@@ -136,7 +110,7 @@ check_input(Fun,Input,IDom,#triq{count=Count,report=DoReport}=QCT) ->
             end;
 
         {'prop:implies', false, _, _, _} ->
-            DoReport(skip,true),
+            report(skip,true),
             {success, Count};
 
         {'prop:implies', true, _Syntax, Fun2, Body2} ->
@@ -180,7 +154,7 @@ check_input(Fun,Input,IDom,#triq{count=Count,report=DoReport}=QCT) ->
 
                 {'EXIT', PID, Reason} ->
                     process_flag(trap_exit, WasTrap),
-                    DoReport(fail, Reason),
+                    report(fail, Reason),
                     {failure, Fun, Input, IDom,
                      QCT#triq{count=Count+1,result={'EXIT', Reason}}}
 
@@ -191,12 +165,12 @@ check_input(Fun,Input,IDom,#triq{count=Count,report=DoReport}=QCT) ->
                          QCT#triq{body=Body2});
 
         Any ->
-            DoReport(fail,Any),
+            report(fail,Any),
             {failure, Fun, Input, IDom, QCT#triq{count=Count+1,result=Any}}
 
     catch
         Class : Exception ->
-            DoReport(fail, {Class, Exception, erlang:get_stacktrace()}),
+            report(fail, {Class, Exception, erlang:get_stacktrace()}),
             {failure, Fun, Input, IDom, QCT#triq{count=Count+1,
                                                  result={'EXIT',Exception}}}
 
@@ -204,7 +178,7 @@ check_input(Fun,Input,IDom,#triq{count=Count,report=DoReport}=QCT) ->
 
 
 check_timeout(Fun,Input,IDom,Limit,Fun2,
-              #triq{count=Count,report=DoReport}=QCT) ->
+              #triq{count=Count}=QCT) ->
     Main = self(),
     Controller =
         spawn
@@ -229,7 +203,7 @@ check_timeout(Fun,Input,IDom,Limit,Fun2,
 
                        {'EXIT', Slave, Reason} ->
                            %% from Slave
-                           DoReport(fail, Reason),
+                           report(fail, Reason),
                            Main ! {Controller,
                                    {failure, Fun, Input, IDom,
                                     QCT#triq{count=Count+1,
@@ -255,7 +229,7 @@ check_timeout(Fun,Input,IDom,Limit,Fun2,
                     after 5 -> ignore end,
 
                     Reason = {timeout, Limit},
-                    DoReport(fail, Reason),
+                    report(fail, Reason),
                     {failure, Fun, Input, IDom,
                      QCT#triq{count=Count+1,result={'EXIT', Reason}}}
             end,
@@ -315,12 +289,12 @@ all(Fun,[H|T]) ->
 module(Module) when is_atom(Module) ->
     module(Module, ?TEST_COUNT).
 
-module(Module, RunIters) when is_integer(RunIters), RunIters>0 ->
+module(Module, RunIters) when is_integer(RunIters), RunIters > 0 ->
     Info = Module:module_info(exports),
     all(fun({Fun,0}) ->
                 case atom_to_list(Fun) of
                     "prop_" ++ _ ->
-                        io:format("Testing ~p:~p/0~n", [Module, Fun]),
+                        report(testing, [Module, Fun]),
                         check(Module:Fun(), RunIters);
                     _ -> true
                 end;
@@ -382,13 +356,12 @@ check(Property, Counterexample, RunIters) ->
     case check_input(fun(nil)->Property end,
                      nil,
                      nil,
-                     #triq{report=fun report/2, run_iter=RunIters,
-                           values=Counterexample}) of
+                     #triq{run_iter=RunIters, values=Counterexample}) of
 
         {failure, Fun, Input, InputDom, #triq{count=Count,context=Ctx,
                                               body=_Body,result=Error}} ->
 
-            io:format("~nFailed after ~p tests with ~p~n", [Count,Error]),
+            report(check_failed, [Count, Error]),
 
             %%
             %% Context is a [{Syntax,Fun,Input,Domain}...] list
@@ -411,21 +384,14 @@ check(Property, Counterexample, RunIters) ->
             %% save the counter example
             put('triq:counterexample', CounterExample),
 
-            io:format("Simplified:~n"),
-            print_counter_example(CounterExample),
+            report(counterexample, CounterExample),
 
             Error;
 
         {success, Count} ->
-            io:format("~nRan ~p tests~n", [Count]),
+            report(success, Count),
             true
     end.
-
-print_counter_example(CounterExample) ->
-    lists:foreach(fun({Syntax,_Fun,Val,_Dom}) ->
-                          io:format("\t~s = ~w~n", [Syntax,Val])
-                  end,
-                  CounterExample).
 
 counterexample(Prop) ->
     case check(Prop) of
@@ -544,3 +510,10 @@ numtests(Num,Prop) ->
 generate_randomness() ->
     <<A:32, B:32, C:32>> = ?crypto_rand_bytes(12),
     triq_rnd:seed({A, B, C}).
+
+reporter() ->
+    application:get_env(triq, reporter_module, triq_reporter_stdout).
+
+report(Event, Term) ->
+    Reporter = reporter(),
+    Reporter:report(Event, Term).
