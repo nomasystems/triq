@@ -2,9 +2,12 @@
 %% application.
 {application, triq,
   [{description, "Trifork QuickCheck"},
-   {vsn, "0.1.0"},
+   {vsn, "1.0.1"},
    {registered,[]},
    {applications, [kernel,stdlib]},
    {build_dependencies, []},
-   {env, []}
+   {env, []},
+   {licenses, ["WTFPL"]},
+   {links, [{"GitHub", "https://github.com/triqng/triq"},
+            {"GitLab", "https://github.com/triqng/triq"}]}
 ]}.
