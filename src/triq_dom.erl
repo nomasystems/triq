@@ -891,7 +891,6 @@ shrink_list_with_elemdom(ElemDom,List,Length,AllowSmaller) ->
     end.
 
 %% decide if something of size `Length' should be shrunk by removing an element
-shrink_smaller(0) -> false;
 shrink_smaller(_Length) ->
     triq_rnd:uniform(5)==1.
 

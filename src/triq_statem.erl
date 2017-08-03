@@ -262,9 +262,7 @@ without(RemIdx, Count, List) ->
 
 without(RemIdx,List) when is_list(List) ->
     {First,Rest} = lists:split(RemIdx-1,List),
-    First ++ tl(Rest);
-without(RemIdx,Tup) when is_tuple(Tup) ->
-    list_to_tuple(without(RemIdx, tuple_to_list(Tup))).
+    First ++ tl(Rest).
 
 %%
 %% simplify command names
