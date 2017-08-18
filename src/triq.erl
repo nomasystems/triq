@@ -69,7 +69,7 @@ load_rand_module() ->
 check_input(Fun,Input,IDom,#triq{count=Count}=QCT) ->
     try Fun(Input) of
         true ->
-            report(pass,true),
+            report(pass,true,QCT#triq.shrinking),
             {success, Count+1};
 
         {success, NewCount} ->
@@ -110,7 +110,7 @@ check_input(Fun,Input,IDom,#triq{count=Count}=QCT) ->
             end;
 
         {'prop:implies', false, _, _, _} ->
-            report(skip,true),
+            report(skip,true,QCT#triq.shrinking),
             {success, Count};
 
         {'prop:implies', true, _Syntax, Fun2, Body2} ->
@@ -154,7 +154,7 @@ check_input(Fun,Input,IDom,#triq{count=Count}=QCT) ->
 
                 {'EXIT', PID, Reason} ->
                     process_flag(trap_exit, WasTrap),
-                    report(fail, Reason),
+                    report(fail, Reason, QCT#triq.shrinking),
                     {failure, Fun, Input, IDom,
                      QCT#triq{count=Count+1,result={'EXIT', Reason}}}
 
@@ -165,12 +165,12 @@ check_input(Fun,Input,IDom,#triq{count=Count}=QCT) ->
                          QCT#triq{body=Body2});
 
         Any ->
-            report(fail,Any),
+            report(fail, Any, QCT#triq.shrinking),
             {failure, Fun, Input, IDom, QCT#triq{count=Count+1,result=Any}}
 
     catch
         Class : Exception ->
-            report(fail, {Class, Exception, erlang:get_stacktrace()}),
+            report(fail, {Class, Exception, erlang:get_stacktrace()}, QCT#triq.shrinking),
             {failure, Fun, Input, IDom, QCT#triq{count=Count+1,
                                                  result={'EXIT',Exception}}}
 
@@ -517,3 +517,7 @@ reporter() ->
 report(Event, Term) ->
     Reporter = reporter(),
     Reporter:report(Event, Term).
+
+report(Event, Term, IsShrinking) ->
+    Reporter = reporter(),
+    Reporter:report(Event, Term, IsShrinking).

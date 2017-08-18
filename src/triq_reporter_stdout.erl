@@ -1,5 +1,5 @@
 -module(triq_reporter_stdout).
--export([report/2]).
+-export([report/2, report/3]).
 
 report(testing, [Module, Fun]) ->
     io:format("Testing ~p:~p/0~n", [Module, Fun]);
@@ -18,6 +18,9 @@ report(counterexample, CounterExample) ->
     print_counter_example(CounterExample);
 report(success, Count) ->
     io:format("~nRan ~p tests~n", [Count]).
+
+report(_Subject, _Data, true) -> ok;
+report(Subject, Data, false) -> report(Subject, Data).
 
 print_counter_example(CounterExample) ->
     lists:foreach(fun({Syntax,_Fun,Val,_Dom}) ->
