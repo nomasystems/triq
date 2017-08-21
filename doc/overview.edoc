@@ -1,4 +1,9 @@
 @author Kresten Krab Thorup <krab@trifork.com>
 @copyright 2010 Trifork A/S
-@version {@vsn}
-
+@doc Triq is a QuickCheck library for Erlang that works similar to PropEr and
+QuviQ eqc. The easiest way to integrate it in your tests is to write properties
+as you're used, replace the header include with that of triq, and then add the
+<tt>-triq(eunit).</tt> attribute in the module. This will generate the needed
+EUnit glue in order to test the properties anytime you run EUnit.
+Alternatively, you can run <tt>rebar triq</tt> or <tt>rebar qc</tt> (given
+correct <tt>rebar.config</tt> settings).
