@@ -1,6 +1,7 @@
 # Welcome to Triq -- Trifork QuickCheck for Erlang
 
-[![Build Status](https://travis-ci.org/triqng/triq.svg?branch=master)](https://travis-ci.org/triqng/triq) 
+[![Travis-CI Build Status](https://travis-ci.org/triqng/triq.svg?branch=master)](https://travis-ci.org/triqng/triq)
+[![GitLab-CI Build Status](https://gitlab.com/triqng/triq/badges/master/pipeline.svg)](https://gitlab.com/triqng/triq/pipelines)
 
 This is a fork of Triq that is being run under the ZeroMQ Collaberation rules, http://rfc.zeromq.org/spec:22 with the one exception being that it is under the apache licence 
 
