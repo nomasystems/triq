@@ -24,8 +24,7 @@ cache:
   stage: build
   script:
     - make
-    - ./rebar check-plt || ./rebar -vv build-plt
-    - ./rebar -vv dialyze
+    - ./rebar xref
     - rm .rebar/erlcinfo
 
 .artifact_paths_template: &artifact_paths_defitinion
@@ -39,9 +38,9 @@ default-build:
   artifacts:
     name: "$CI_PROJECT_NAME-ci-${CI_BUILD_REF_NAME}"
     <<: *artifact_paths_defitinion
-    # Temporary artifacts for non-release builds are removed after a week
+    # Temporary artifacts for non-release builds are removed after a month
     # because they are just for use in test jobs.
-    expire_in: 1 week
+    expire_in: 1 month
 
 release:
   <<: *build_job_definition
@@ -74,3 +73,10 @@ test:19:
 test:20:
   <<: *test_job_definition
   image: erlang:20
+
+dialyze:20:
+  stage: dialyze
+  image: erlang:20
+  script:
+    - ./rebar check-plt || ./rebar -vv build-plt
+    - ./rebar -vv dialyze
