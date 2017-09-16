@@ -74,9 +74,11 @@ test:20:
   <<: *test_job_definition
   image: erlang:20
 
-dialyze:20:
-  stage: dialyze
+test:dialyze:
+  stage: test
   image: erlang:20
+  dependencies:
+    - default-build
   script:
     - ./rebar check-plt || ./rebar -vv build-plt
     - ./rebar -vv dialyze
