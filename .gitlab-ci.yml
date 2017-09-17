@@ -24,7 +24,6 @@ cache:
   stage: build
   script:
     - make
-    - ./rebar xref
     - rm .rebar/erlcinfo
 
 .artifact_paths_template: &artifact_paths_defitinion
