@@ -35,11 +35,11 @@ parse_transform(Forms, Options) ->
     F = fun (Form, Set) ->
                 t_form(Form, Set, PropPrefix)
         end,
-    Exports = sets:to_list(lists:foldl(F, sets:new(), Forms)),
+    PropExports = sets:to_list(lists:foldl(F, sets:new(), Forms)),
     EUnit = maybe_gen_eunit(PropPrefix, Forms),
-    Forms1 = t_rewrite(Forms, Exports),
+    EUnitExports = lists:map(fun ({function, _, Name, 0, _}) -> {Name, 0} end, EUnit),
+    Forms1 = t_rewrite(Forms, PropExports ++ EUnitExports),
     add_eunit(Forms1, EUnit).
-
 
 t_form({function, _L, Name, 0, _Cs}, S, PropPrefix) ->
     N = atom_to_list(Name),
