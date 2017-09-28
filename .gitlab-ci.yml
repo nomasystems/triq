@@ -23,7 +23,7 @@ cache:
 .build_job_template: &build_job_definition
   stage: build
   script:
-    - make
+    - ./rebar compile
     - rm .rebar/erlcinfo
 
 .artifact_paths_template: &artifact_paths_defitinion
@@ -33,7 +33,7 @@ cache:
 
 default-build:
   <<: *build_job_definition
-  image: erlang:17
+  image: erlang:20-alpine
   artifacts:
     name: "$CI_PROJECT_NAME-ci-${CI_BUILD_REF_NAME}"
     <<: *artifact_paths_defitinion
@@ -43,7 +43,7 @@ default-build:
 
 release:
   <<: *build_job_definition
-  image: erlang:17
+  image: erlang:20-alpine
   artifacts:
     name: "$CI_PROJECT_NAME-${CI_BUILD_REF_NAME}"
     <<: *artifact_paths_defitinion
@@ -53,9 +53,7 @@ release:
 .test_job_template: &test_job_definition
   stage: test
   script:
-    - make eunit
-  dependencies:
-    - default-build
+    - ./rebar eunit
 
 test:17:
   <<: *test_job_definition
@@ -71,13 +69,12 @@ test:19:
 
 test:20:
   <<: *test_job_definition
-  image: erlang:20
+  image: erlang:20-alpine
 
 test:dialyze:
   stage: test
-  image: erlang:20
-  dependencies:
-    - default-build
+  image: erlang:20-alpine
   script:
+    - ./rebar compile
     - ./rebar check-plt || ./rebar -vv build-plt
     - ./rebar -vv dialyze
