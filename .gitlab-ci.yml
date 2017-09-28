@@ -22,6 +22,7 @@ cache:
 
 .build_job_template: &build_job_definition
   stage: build
+  image: erlang:20-alpine
   script:
     - ./rebar compile
     - rm .rebar/erlcinfo
@@ -33,7 +34,6 @@ cache:
 
 default-build:
   <<: *build_job_definition
-  image: erlang:20-alpine
   artifacts:
     name: "$CI_PROJECT_NAME-ci-${CI_BUILD_REF_NAME}"
     <<: *artifact_paths_defitinion
@@ -43,7 +43,6 @@ default-build:
 
 release:
   <<: *build_job_definition
-  image: erlang:20-alpine
   artifacts:
     name: "$CI_PROJECT_NAME-${CI_BUILD_REF_NAME}"
     <<: *artifact_paths_defitinion
