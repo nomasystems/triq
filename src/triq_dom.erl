@@ -47,12 +47,13 @@
 %% Return pair of `{domain(T),T}'; the "output domain" is what will
 %% be used for shrinking the value.
 -type pick_fun(T) :: fun( (domain(T),integer()) ->
-                                {domain(T),T} | no_return() ).
+                                {domain(T),T} | no_return() )
+                                | undefined.
 
 %% @type shrink_fun(T). Shrinks members of the `domain(T)'.
 %% Return pair of `{domain(T),T}'; the "output domain" is what will
 %% be used for further shrinking the value.
--type shrink_fun(T) :: fun( (domain(T),T) -> {domain(T),T} | no_return() ).
+-type shrink_fun(T) :: fun( (domain(T),T) -> {domain(T),T} | no_return() ) | undefined.
 -type domrec(T) :: {?DOM,
                     atom() | tuple(),
                     pick_fun(T),
