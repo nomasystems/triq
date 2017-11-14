@@ -237,13 +237,13 @@ pick_list_test() ->
 
 pick_pair_test() ->
     repeat( fun() ->
-                    case pick([choose(0,10) | {choose(0,10)}], 10) of
-                        {Dom, [Int1| {Int2}]=Val} when is_integer(Int1),
+                    case pick([choose(0,10), {choose(0,10)}], 10) of
+                        {Dom, [Int1, {Int2}]=Val} when is_integer(Int1),
                                                        is_integer(Int2) ->
                             case shrink(Dom, Val) of
-                                {_, [SInt1 | {SInt2}]}
+                                {_, [SInt1, {SInt2}]}
                                   when SInt1<Int1; SInt2<Int2 -> ok;
-                                {_, [_ | {_}]} when Int1==0;Int2==0 -> ok
+                                {_, [_, {_}]} when Int1==0;Int2==0 -> ok
                             end
 
                     end
@@ -1074,7 +1074,7 @@ smaller(Domain) ->
 any()  ->
     oneof([int(), real(), bool(), atom(),
 
-           [smaller(?DELAY(any())) | smaller(?DELAY(any()))],
+           [smaller(?DELAY(any())), smaller(?DELAY(any()))],
 
            %% list(any()), but with a size in the range 1..GenSize
            list(smaller(?DELAY(any()))),
