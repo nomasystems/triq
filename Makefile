@@ -19,7 +19,11 @@
 all:
 	./rebar compile
 
-test: eunit qc
+test: xref eunit qc
+
+ci: clean debug test
+
+ci-dialyze: clean debug dialyze
 
 doc:
 	./rebar doc
@@ -27,11 +31,17 @@ doc:
 clean:
 	./rebar clean
 
-dialyzer:
-	./rebar analyze
+xref:
+	./rebar xref
 
 eunit:
 	./rebar eunit
 
 qc:
 	./rebar qc
+
+maybe_build_plt:
+	./rebar -vv check-plt || ./rebar -vv build-plt
+
+dialyze: maybe_build_plt
+	./rebar -vv dialyze

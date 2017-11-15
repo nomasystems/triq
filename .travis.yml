@@ -1,12 +1,24 @@
+sudo: false
 language: erlang
 otp_release:
-   - 19.0
-   - 18.3
-   - 17.3
-   - 17.1
-   - 17.0
-   - R16B03
-   - R15B03
-   - R16B03-1
-   - R16B02
-   - R16B01
+  - 20.1.5
+  - 20.0.4
+  - 19.0
+  - 18.3
+  - 17.3
+  - 17.1
+  - 17.0
+  - R16B03-1
+  - R15B03
+env: MAKE_TARGET=ci
+matrix:
+  include:
+    - otp_release: 20.1.5
+      env: MAKE_TARGET=ci-dialyze
+script: make $MAKE_TARGET
+cache:
+  directories:
+    - .rebar
+before_cache:
+  - rm -fv .rebar/erlcinfo
+  - rm -fv $HOME/.cache/.rebar/erlcinfo
