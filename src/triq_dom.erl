@@ -47,12 +47,13 @@
 %% Return pair of `{domain(T),T}'; the "output domain" is what will
 %% be used for shrinking the value.
 -type pick_fun(T) :: fun( (domain(T),integer()) ->
-                                {domain(T),T} | no_return() ).
+                                {domain(T),T} | no_return() )
+                                | undefined.
 
 %% @type shrink_fun(T). Shrinks members of the `domain(T)'.
 %% Return pair of `{domain(T),T}'; the "output domain" is what will
 %% be used for further shrinking the value.
--type shrink_fun(T) :: fun( (domain(T),T) -> {domain(T),T} | no_return() ).
+-type shrink_fun(T) :: fun( (domain(T),T) -> {domain(T),T} | no_return() ) | undefined.
 -type domrec(T) :: {?DOM,
                     atom() | tuple(),
                     pick_fun(T),
@@ -236,13 +237,13 @@ pick_list_test() ->
 
 pick_pair_test() ->
     repeat( fun() ->
-                    case pick([choose(0,10) | {choose(0,10)}], 10) of
-                        {Dom, [Int1| {Int2}]=Val} when is_integer(Int1),
+                    case pick([choose(0,10), {choose(0,10)}], 10) of
+                        {Dom, [Int1, {Int2}]=Val} when is_integer(Int1),
                                                        is_integer(Int2) ->
                             case shrink(Dom, Val) of
-                                {_, [SInt1 | {SInt2}]}
+                                {_, [SInt1, {SInt2}]}
                                   when SInt1<Int1; SInt2<Int2 -> ok;
-                                {_, [_ | {_}]} when Int1==0;Int2==0 -> ok
+                                {_, [_, {_}]} when Int1==0;Int2==0 -> ok
                             end
 
                     end
@@ -1073,7 +1074,7 @@ smaller(Domain) ->
 any()  ->
     oneof([int(), real(), bool(), atom(),
 
-           [smaller(?DELAY(any())) | smaller(?DELAY(any()))],
+           [smaller(?DELAY(any())), smaller(?DELAY(any()))],
 
            %% list(any()), but with a size in the range 1..GenSize
            list(smaller(?DELAY(any()))),
