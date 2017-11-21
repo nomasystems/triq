@@ -20,12 +20,18 @@
 
 -module(pdict_statem).
 
+-export([ initial_state/0
+        , key/0
+        , command/1
+        , precondition/2
+        , postcondition/3
+        , next_state/3
+        ]).
+
 -include("triq.hrl").
 
 %% use eunit
 -include_lib("eunit/include/eunit.hrl").
-
--compile(export_all).
 
 %%
 %% A simple statem test for the process dictionary; tests the
