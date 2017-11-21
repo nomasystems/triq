@@ -19,7 +19,7 @@
 all:
 	./rebar compile
 
-test: xref eunit
+test: eunit
 
 ci: clean debug test
 
@@ -30,9 +30,6 @@ doc:
 
 clean:
 	./rebar clean
-
-xref:
-	./rebar xref
 
 eunit:
 	./rebar eunit
