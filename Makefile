@@ -19,7 +19,7 @@
 all:
 	./rebar compile
 
-test: xref eunit qc
+test: xref eunit
 
 ci: clean debug test
 
@@ -36,9 +36,6 @@ xref:
 
 eunit:
 	./rebar eunit
-
-qc:
-	./rebar qc
 
 maybe_build_plt:
 	./rebar -vv check-plt || ./rebar -vv build-plt
