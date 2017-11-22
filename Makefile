@@ -14,28 +14,27 @@
 ## limitations under the License.
 ##==============================================================================
 
-.PHONY: doc
+.PHONY: clean doc test dialyze check eunit ci ci-dialyze
+
+REBAR=`sh -c "PATH='$(PATH)':util which rebar3||util/getrebar||echo false"`
 
 all:
-	./rebar compile
+	@$(REBAR) compile
 
 test: eunit
 
-ci: clean debug test
+ci: clean test
 
-ci-dialyze: clean debug dialyze
+ci-dialyze: clean dialyze
 
 doc:
-	./rebar doc
+	@$(REBAR) edoc
 
 clean:
-	./rebar clean
+	@$(REBAR) clean
 
 eunit:
-	./rebar eunit
+	@$(REBAR) eunit
 
-maybe_build_plt:
-	./rebar -vv check-plt || ./rebar -vv build-plt
-
-dialyze: maybe_build_plt
-	./rebar -vv dialyze
+dialyze:
+	@$(REBAR) dialyzer
