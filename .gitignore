@@ -10,3 +10,6 @@
 /*.beam
 /*.S
 /*.erlx
+/rebar.lock
+/rebar3.crashdump
+/util/rebar3
