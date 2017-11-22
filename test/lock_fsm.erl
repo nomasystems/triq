@@ -3,7 +3,7 @@
 %%
 %% This file is part of Triq - Trifork QuickCheck
 %%
-%% Copyright (c) 2013 Tuncer Ayaz
+%% Copyright (c) 2013-2017 Tuncer Ayaz
 %%
 %% Licensed under the Apache License, Version 2.0 (the "License");
 %% you may not use this file except in compliance with the License.
@@ -144,17 +144,19 @@ prop_lock_fsm() ->
     ?FORALL(
        Cmds, triq_fsm:commands(?MODULE),
        begin
-           ?WHENFAIL(io:format(user, "Cmds: ~p", [Cmds]), begin
-           start(?CODE),
-           {History, State, Result} = triq_fsm:run_commands(?MODULE, Cmds),
-           stop(),
-           ?WHENFAIL(io:format(user,
-                               "History: ~p~n"
-                               "State: ~p~n"
-                               "Result: ~p~n",
-                               [History, State, Result]),
-                     Result =:= ok)
-                                                          end)
+           ?WHENFAIL(
+              io:format(user, "Cmds: ~p", [Cmds]),
+              begin
+                  start(?CODE),
+                  {History, State, Result} = triq_fsm:run_commands(?MODULE, Cmds),
+                  stop(),
+                  ?WHENFAIL(io:format(user,
+                                      "History: ~p~n"
+                                      "State: ~p~n"
+                                      "Result: ~p~n",
+                                      [History, State, Result]),
+                            Result =:= ok)
+              end)
        end).
 
 lock_fsm_test_() ->
