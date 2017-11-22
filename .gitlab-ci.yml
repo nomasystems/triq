@@ -18,14 +18,13 @@ variables:
 cache:
   key: $CI_PROJECT_PATH
   paths:
-    - .rebar/triq_*_plt
+    - .default/rebar3_*_plt
 
 .build_job_template: &build_job_definition
   stage: build
   image: erlang:20-alpine
   script:
-    - ./rebar compile
-    - rm .rebar/erlcinfo
+    - make ci
 
 .artifact_paths_template: &artifact_paths_defitinion
   paths:
@@ -52,7 +51,7 @@ release:
 .test_job_template: &test_job_definition
   stage: test
   script:
-    - ./rebar eunit
+    - make ci
 
 test:17:
   <<: *test_job_definition
@@ -74,6 +73,4 @@ test:dialyze:
   stage: test
   image: erlang:20-alpine
   script:
-    - ./rebar compile
-    - ./rebar check-plt || ./rebar -vv build-plt
-    - ./rebar -vv dialyze
+    - make ci-dialyze

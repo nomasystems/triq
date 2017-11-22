@@ -1,7 +1,7 @@
 sudo: false
 language: erlang
 otp_release:
-  - 20.1.5
+  - 20.1.6
   - 20.0.4
   - 19.0
   - 18.3
@@ -13,12 +13,6 @@ otp_release:
 env: MAKE_TARGET=ci
 matrix:
   include:
-    - otp_release: 20.1.5
+    - otp_release: 20.1.6
       env: MAKE_TARGET=ci-dialyze
 script: make $MAKE_TARGET
-cache:
-  directories:
-    - .rebar
-before_cache:
-  - rm -fv .rebar/erlcinfo
-  - rm -fv $HOME/.cache/.rebar/erlcinfo
