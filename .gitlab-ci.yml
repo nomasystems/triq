@@ -23,6 +23,8 @@ cache:
 .build_job_template: &build_job_definition
   stage: build
   image: erlang:20-alpine
+  before_script:
+    - apk add --update make
   script:
     - make ci
 
@@ -67,10 +69,14 @@ test:19:
 
 test:20:
   <<: *test_job_definition
+  before_script:
+    - apk add --update make
   image: erlang:20-alpine
 
 test:dialyze:
   stage: test
   image: erlang:20-alpine
+  before_script:
+    - apk add --update make
   script:
     - make ci-dialyze
