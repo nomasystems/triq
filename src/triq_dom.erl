@@ -1471,11 +1471,9 @@ unicode_binary(Encoding) ->
 
 %% @doc Generate an unicode binary.
 -spec unicode_binary(Size, Encoding) -> domrec(binary()) when
-      Size :: non_neg_integer() | undefined,
+      Size :: non_neg_integer() | 'any',
       Encoding :: unicode:encoding().
 
-unicode_binary(undefined, Encoding) ->
-    unicode_binary(any, Encoding);
 unicode_binary(Size, Encoding) ->
     #?DOM{kind=#unicode_binary{size=Size, encoding=Encoding},
           pick=fun unicode_binary_pick/2,
