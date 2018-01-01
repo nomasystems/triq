@@ -1,0 +1,9 @@
+#+INCLUDE: "../../README.org" :minlevel 1
+
+** API Documentation
+   :PROPERTIES:
+   :CUSTOM_ID: edoc
+   :END:
+
+Generated edoc is available [[file:edoc/index.html][here]]. The interesting modules are [[file:edoc/triq.html][triq]] and
+[[file:edoc/triq_dom.html][triq_dom]].

@@ -1,0 +1,171 @@
+#+OPTIONS: ^:nil
+#+TITLE: Triq
+
+* [[http://gitlab.com/triqng/triq][Triq]] is The Free QuickCheck for Erlang
+
+** Introduction
+   :PROPERTIES:
+   :CUSTOM_ID: introduction
+   :END:
+
+By and large, the Triq API is modeled closely after QuviQ =eqc=, except you
+want to replace any occurrence of =eqc= with =triq=. The main supporting module
+is called =triq_dom=, corresponding to eqc's =eqc_gen=.
+
+#+BEGIN_EXPORT html
+<a href="https://gitlab.com/triqng/triq/pipelines"><img src="https://gitlab.com/triqng/triq/badges/master/pipeline.svg"></a>
+#+END_EXPORT
+
+This is a fork of Triq that is being run under the ZeroMQ Collaberation
+rules, https://rfc.zeromq.org/spec:22 with the one exception being that
+it is under the Apache licence.
+
+** Obtaining Triq
+   :PROPERTIES:
+   :CUSTOM_ID: using-triq
+   :END:
+
+*** Installation via package manager
+    :PROPERTIES:
+    :CUSTOM_ID: installation-via-package-manager
+    :END:
+
+To use =triq=, you can add it as a project dependency and let your
+package manager of choice handle it:
+
+rebar.config: ={triq, "1.*"}=
+
+erlang.mk: =DEPS = triq=
+
+mix.exs: ={:triq, "~> 1.*"}=
+
+*** Installation from source into =$ERL_LIBS=
+    :PROPERTIES:
+    :CUSTOM_ID: installation-from-source-into-erl_libs
+    :END:
+
+If you want to make =triq= available globally, you can install it from
+source into your Erlang installation by adding it in one of your
+=$ERL_LIBS= paths. So, it's either somewhere like
+=/usr/lib/erlang/lib= or =$HOME/.erl=.
+
+You can either download a tagged release from
+=https://gitlab.com/triqng/triq/tags= and extract that or clone the
+git repo =https://gitlab.com/triqng/triq= in the target directory. Once
+that's done, cd into the directory and run =make=.
+
+Now, if you start =erl=, you should be able to call functions from the
+=triq= module.
+
+#+BEGIN_EXAMPLE
+    $ erl
+    1> code:which(triq).
+    "/usr/local/lib/erlang/lib/triq/ebin/triq.beam"
+    2>
+#+END_EXAMPLE
+
+** Writing QuickCheck properties with Triq
+    :PROPERTIES:
+    :CUSTOM_ID: writing-properties-with-triq
+    :END:
+
+To write properties with =triq=, include the header file:
+
+#+BEGIN_EXAMPLE erlang
+    -include_lib("triq/include/triq.hrl").
+#+END_EXAMPLE
+
+And you're ready to write property tests. An example property could be:
+
+#+BEGIN_EXAMPLE erlang
+    prop_append() ->
+        ?FORALL({Xs,Ys},{list(int()),list(int())},
+                lists:reverse(Xs++Ys)
+                ==
+                lists:reverse(Ys) ++ lists:reverse(Xs)).
+#+END_EXAMPLE
+
+To test this property, run =triq:check/1=, thus:
+
+#+BEGIN_EXAMPLE
+    1> triq:check(prop_append()).
+    ......................................................................
+    ..............................
+    Ran 100 tests
+    true
+    2>
+#+END_EXAMPLE
+
+If the test fails, it will try to shrink the result; here is an example:
+
+#+BEGIN_EXAMPLE erlang
+    prop_delete() ->
+        ?FORALL(L,list(int()),
+            ?IMPLIES(L /= [],
+                ?FORALL(I,elements(L),
+                    ?WHENFAIL(io:format("L=~p, I=~p~n", [L,I]),
+                              not lists:member(I,lists:delete(I,L)))))).
+#+END_EXAMPLE
+
+Which runs like this:
+
+#+BEGIN_EXAMPLE
+    1> triq:check(triq_tests:prop_delete()).
+    x....Failed!
+    L=[4,5,5], I=5
+
+    Failed after 5 tests with false
+    Simplified:
+            L = [0,0]
+            I = 0
+    false
+    2>
+#+END_EXAMPLE
+
+You can get the values used for the failing test with =counterexample=,
+and reuse the same test values with =check/2=:
+
+#+BEGIN_EXAMPLE
+    3> A = triq:counterexample(triq_tests:xprop_delete()).
+    x.xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxFailed!
+    L=[3,2,1,1,1], I=1
+
+    Failed after 101 tests with false
+    Simplified:
+        L = [0,0]
+        I = 0
+    [[0,0],0]
+    4> A.
+    [[0,0],0]
+    5> triq:check(triq_tests:xprop_delete(), A).
+    Failed!
+    L=[0,0], I=0
+
+    Failed after 1 tests with false
+    Simplified:
+        L = [0,0]
+        I = 0
+    false
+    6>
+#+END_EXAMPLE
+
+Modules compiled with the =triq.hrl= header, auto-export all functions
+named =prop_*=, and have a function added called =check/0= which runs
+=triq:check/1= on all the properties in the module.
+
+#+BEGIN_EXAMPLE
+    1> mymodule:check().
+#+END_EXAMPLE
+
+You can also instruct =triq= to generate EUnit tests for each property
+which allow the module to be treated like an ordinary EUnit test
+suite. This is highly recommended and avoids the need for =triq= or
+generic =qc= support in your build/test tool of choice. To achieve
+that, just make sure to include the attribute =-triq(eunit).= at the
+top of the module. Thus, the initial =triq.hrl= include would turn
+into this:
+
+#+BEGIN_EXAMPLE erlang
+    -include_lib("triq/include/triq.hrl").
+    -triq(eunit).
+#+END_EXAMPLE

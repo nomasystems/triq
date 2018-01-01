@@ -12,3 +12,7 @@
 /rebar.lock
 /rebar3.crashdump
 /util/rebar3
+/pages/out
+/public
+/pages/.org-mode
+/pages/org-latest.tar.gz

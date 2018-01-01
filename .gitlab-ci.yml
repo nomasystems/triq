@@ -1,4 +1,4 @@
-# Copyright (c) 2016-2017 Tuncer Ayaz
+# Copyright (c) 2016-2018 Tuncer Ayaz
 #
 # Permission to use, copy, modify, and/or distribute this software for any
 # purpose with or without fee is hereby granted, provided that the above
@@ -14,15 +14,34 @@
 
 variables:
   GIT_DEPTH: "3"
+  DEFAULT_IMAGE: erlang:20-alpine
+
+pages:
+  stage: deploy
+  image: $DEFAULT_IMAGE
+  before_script:
+    - apk add --update make emacs texinfo ca-certificates curl
+    - update-ca-certificates
+    - cd pages
+    - ./install
+    - cd ..
+  script:
+    - make pages
+    - mv pages/out public
+  artifacts:
+    paths:
+      - public
+  only:
+    - master
 
 cache:
   key: $CI_PROJECT_PATH
   paths:
-    - .default/rebar3_*_plt
+    - _build/default/rebar3_*_plt
 
 .build_job_template: &build_job_definition
   stage: build
-  image: erlang:20-alpine
+  image: $DEFAULT_IMAGE
   before_script:
     - apk add --update make
   script:
@@ -71,11 +90,11 @@ test:20:
   <<: *test_job_definition
   before_script:
     - apk add --update make
-  image: erlang:20-alpine
+  image: $DEFAULT_IMAGE
 
 test:dialyze:
   stage: test
-  image: erlang:20-alpine
+  image: $DEFAULT_IMAGE
   before_script:
     - apk add --update make
   script:
