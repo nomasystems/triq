@@ -117,9 +117,6 @@ prop_simple3() ->
                          (CH >= $a) and (CH =< $z)
                      end)).
 
-%%
-%% This should be able to succeed
-%%
 prop_suchthat() ->
     ?FORALL({X,Y},
             ?SUCHTHAT({XX,YY},
@@ -127,8 +124,19 @@ prop_suchthat() ->
                       XX < YY),
             X < Y).
 
-suchthat_test() ->
-    true = triq:counterexample(prop_suchthat()).
+%% If an iteration of ?SUCHTHAT loop fails and we don't increase sample
+%% size, we might not get enough variance to obtain a rewarding value.
+xprop_suchthat_sample_size() ->
+    ?FORALL(
+       _,
+       ?SUCHTHAT(
+          X,
+          int(),
+          X > 10),
+       false).
+
+suchthat_sample_size_test() ->
+    [11] = triq:counterexample(xprop_suchthat_sample_size()).
 
 tuple_failure_test() ->
     false = check(?FORALL(T, {int()},

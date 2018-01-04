@@ -1049,7 +1049,10 @@ suchthat_pick_loop(N,Dom,Pred,SampleSize) ->
     {ValDom,Val} = pick(Dom,SampleSize),
     case Pred(Val) of
         true -> {suchthat(ValDom, Pred), Val};
-        _ -> suchthat_pick_loop(N-1, Dom, Pred, SampleSize)
+        %% If we failed, we make another try with a higher sample size,
+        %% as there may be not enough variance within our current sample
+        %% size.
+        _ -> suchthat_pick_loop(N - 1, Dom, Pred, SampleSize + 2)
     end.
 
 suchthat_shrink_loop(0, Dom, Pred, Val) ->
