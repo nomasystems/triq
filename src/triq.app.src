@@ -4,7 +4,8 @@
   [{description, "Trifork QuickCheck"},
    {vsn, "1.0.3"},
    {registered,[]},
-   {applications, [kernel,stdlib]},
+   %% Compiler is needed by triq_rand_compat.
+   {applications, [kernel,stdlib,compiler]},
    {build_dependencies, []},
    {env, []},
    {licenses, ["Apache"]},
