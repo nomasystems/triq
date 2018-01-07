@@ -14,7 +14,7 @@
 ## limitations under the License.
 ##==============================================================================
 
-.PHONY: clean doc test dialyze check eunit ci ci-dialyze
+.PHONY: clean edoc test dialyze check eunit ci ci-dialyze pages
 
 REBAR=`sh -c "PATH='$(PATH)':util which rebar3||util/getrebar||echo false"`
 
@@ -27,7 +27,13 @@ ci: clean test
 
 ci-dialyze: clean dialyze
 
-doc:
+pages: edoc
+	@test -d pages/out/edoc && rm pages/out/edoc/* || mkdir -p pages/out/edoc
+	@cp doc/*.html doc/*.css doc/*.png pages/out/edoc
+	@(cd pages && ./export)
+	@rm -f pages/out/*.html~
+
+edoc:
 	@$(REBAR) edoc
 
 clean:
