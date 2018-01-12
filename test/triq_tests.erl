@@ -247,6 +247,17 @@ suchthat_shrinking_test() ->
                 X > 1),
              false))).
 
+noshrink_test() ->
+    noshrink_test(100).
+
+noshrink_test(0) ->
+    true;
+noshrink_test(Size) ->
+    {Dom, Val} = triq_dom:pick(triq_dom:noshrink(any()), Size),
+    {ShrinkedDom, ShrinkedVal} = triq_dom:shrink(Dom, Val),
+    ?assertEqual({ShrinkedDom, ShrinkedVal}, {Dom, Val}),
+    noshrink_test(Size - 1).
+
 %%
 %% Test passing counterexamples to properties
 %%

@@ -93,6 +93,7 @@
          bitstring/1,
          non_empty/1,
          resize/2,
+         noshrink/1,
          non_neg_integer/0,
          pos_integer/0,
 

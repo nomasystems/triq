@@ -88,7 +88,8 @@
         {kind :: atom() | tuple(),
          pick = fun error_pick/2 :: pick_fun(T),
          shrink = fun error_shrink/2 :: shrink_fun(T),
-         empty_ok = true :: boolean()
+         empty_ok = true :: boolean(),
+         noshrink = false :: boolean()
         }).
 
 
@@ -102,6 +103,7 @@
 -record(resize,{size, dom}).
 -record(bind,  {dom, body}).
 -record(sized, {body}).
+-record(noshrink, {dom}).
 -record(suchthat,{dom,pred}).
 -record(bound_domain,{dom1,val1,dom2,fun2,size}).
 -record(choose,{min,max}).
@@ -138,6 +140,7 @@
          bitstring/1,
          non_empty/1,
          resize/2,
+         noshrink/1,
          non_neg_integer/0,
          pos_integer/0]).
 
@@ -154,6 +157,7 @@
 %% using a generator
 -export([bind/2,
          bindshrink/2,
+         is_shrinkable/1,
          suchthat/2,
          pick/2,
          shrink/2,
@@ -266,6 +270,8 @@ shrink({Domain,Value}) ->
 %%
 %% @spec shrink(Domain::domain(T),Value::T) -> {domain(T), T}
 -spec shrink(domain(T),T) -> {domain(T), T}.
+shrink(Dom=#?DOM{noshrink=true}, Value) ->
+    {Dom, Value};
 shrink(Domain=#?DOM{shrink=SFun}, Value) ->
     SFun(Domain,Value);
 shrink(TupDom,Tup) when is_tuple(TupDom),
@@ -939,6 +945,14 @@ non_empty(#?DOM{}=Dom) ->
     Dom#?DOM{empty_ok=false}.
 
 
+%% @doc Tell whether the domain can possibly be shrinked.
+%% @private
+-spec is_shrinkable(domain(_)) -> boolean().
+is_shrinkable(#?DOM{noshrink=true}) ->
+    false;
+is_shrinkable(_) ->
+    true.
+
 %% @doc Support function for the `?LET(Vars,Dom1,Dom2)' macro.
 %% @private
 %% @spec bind(domain(T), fun( (T) -> domain(D) )) -> domain(D)
@@ -1144,8 +1158,8 @@ frequency(GenList) when is_list(GenList) ->
 -spec return(Value::Type) -> domain(Type).
 return(Val) ->
     domain(return,
-           fun(Self,_) -> {Self,Val} end,
-           fun(Self,_) -> {Self,Val} end).
+           fun(Self,_) -> {noshrink(Self),Val} end,
+           fun error_shrink/2).
 
 %% @doc Support function for the ?SIZED macro.
 %% @spec sized( fun((integer()) -> domain(T)) ) -> domain(T)
@@ -1161,6 +1175,17 @@ resize(Sz,Dom) ->
                        pick(D,SampleSize)
                end
          }.
+
+noshrink_pick(#?DOM{kind=#noshrink{dom=InnerDom}}, Size) ->
+    {Dom, Val} = pick(InnerDom, Size),
+    {noshrink(Dom), Val}.
+
+-spec noshrink(domain(T)) -> domain(T).
+noshrink(Dom) ->
+    #?DOM{
+        kind=#noshrink{dom=Dom},
+        pick=fun noshrink_pick/2,
+        noshrink=true}.
 
 -spec choose(M::integer(), N::integer()) -> domrec(integer()).
 choose(M,N) when is_integer(M), is_integer(N), M=<N ->
