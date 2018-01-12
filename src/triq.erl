@@ -22,7 +22,7 @@
 
 %%
 %% For each ?FORALL, we try to shrink the value
-%% this many iterations.
+%% this many iterations (if it is shrinkable).
 %%
 -define(SHRINK_COUNT, 1000).
 
@@ -65,6 +65,14 @@
 load_rand_module() ->
     {ok, triq_rnd} = triq_rand_compat:init("triq_rnd"),
     ok.
+
+shrink_count(Domain) ->
+    case triq_dom:is_shrinkable(Domain) of
+        true ->
+            ?SHRINK_COUNT;
+        false ->
+            0
+    end.
 
 check_input(Fun,Input,IDom,#triq{count=Count}=QCT) ->
     try Fun(Input) of
@@ -372,7 +380,7 @@ check(Property, Counterexample, RunIters) ->
 
             %% Run the shrinking function
             %%
-            Simp = shrink_loop(Fun,Input,InputDom,?SHRINK_COUNT,tl(Context)),
+            Simp = shrink_loop(Fun,Input,InputDom,shrink_count(InputDom),tl(Context)),
 
             %%
             %% Compute the counter example
@@ -408,7 +416,7 @@ counterexample() ->
 %% ?FORALL smaller; after trying the outer.
 %%
 shrink_deeper(Input,[{_,F1,I1,G1}|T]) ->
-    [Input | shrink_loop(F1,I1,G1,?SHRINK_COUNT,T)];
+    [Input | shrink_loop(F1,I1,G1,shrink_count(G1),T)];
 shrink_deeper(Input,[]) -> [Input].
 
 
