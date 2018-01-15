@@ -58,6 +58,7 @@
                     atom() | tuple(),
                     pick_fun(T),
                     shrink_fun(T),
+                    boolean(),
                     boolean()}.
 
 -define(BOX,'@box').
