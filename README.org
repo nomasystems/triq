@@ -1,7 +1,7 @@
 #+OPTIONS: ^:nil
 #+TITLE: Triq
 
-* [[http://gitlab.com/triqng/triq][Triq]] is The Free QuickCheck for Erlang
+* [[https://gitlab.com/triq/triq][Triq]] QuickCheck for Erlang
 
 ** Introduction
    :PROPERTIES:
@@ -13,7 +13,7 @@ want to replace any occurrence of =eqc= with =triq=. The main supporting module
 is called =triq_dom=, corresponding to eqc's =eqc_gen=.
 
 #+BEGIN_EXPORT html
-<a href="https://gitlab.com/triqng/triq/pipelines"><img src="https://gitlab.com/triqng/triq/badges/master/pipeline.svg"></a>
+<a href="https://gitlab.com/triq/triq/pipelines"><img src="https://gitlab.com/triq/triq/badges/master/pipeline.svg"></a>
 #+END_EXPORT
 
 This is a fork of Triq that is being run under the ZeroMQ Collaberation
@@ -50,8 +50,8 @@ source into your Erlang installation by adding it in one of your
 =/usr/lib/erlang/lib= or =$HOME/.erl=.
 
 You can either download a tagged release from
-=https://gitlab.com/triqng/triq/tags= and extract that or clone the
-git repo =https://gitlab.com/triqng/triq= in the target directory. Once
+=https://gitlab.com/triq/triq/tags= and extract that or clone the
+git repo =https://gitlab.com/triq/triq= in the target directory. Once
 that's done, cd into the directory and run =make=.
 
 Now, if you start =erl=, you should be able to call functions from the
@@ -60,7 +60,7 @@ Now, if you start =erl=, you should be able to call functions from the
 #+BEGIN_EXAMPLE
     $ erl
     1> code:which(triq).
-    "/usr/local/lib/erlang/lib/triq/ebin/triq.beam"
+    "/usr/lib/erlang/lib/triq/ebin/triq.beam"
     2>
 #+END_EXAMPLE
 
