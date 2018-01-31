@@ -53,12 +53,11 @@
 %% @type shrink_fun(T). Shrinks members of the `domain(T)'.
 %% Return pair of `{domain(T),T}'; the "output domain" is what will
 %% be used for further shrinking the value.
--type shrink_fun(T) :: fun( (domain(T),T) -> {domain(T),T} | no_return() ) | undefined.
+-type shrink_fun(T) :: fun( (domain(T),T) -> {domain(T),T} | no_return() ) | none | undefined.
 -type domrec(T) :: {?DOM,
                     atom() | tuple(),
                     pick_fun(T),
                     shrink_fun(T),
-                    boolean(),
                     boolean()}.
 
 -define(BOX,'@box').
@@ -88,9 +87,8 @@
 -record(?DOM,
         {kind :: atom() | tuple(),
          pick = fun error_pick/2 :: pick_fun(T),
-         shrink = fun error_shrink/2 :: shrink_fun(T),
-         empty_ok = true :: boolean(),
-         noshrink = false :: boolean()
+         shrink = fun error_shrink/2 :: shrink_fun(T) | none,
+         empty_ok = true :: boolean()
         }).
 
 
@@ -271,7 +269,7 @@ shrink({Domain,Value}) ->
 %%
 %% @spec shrink(Domain::domain(T),Value::T) -> {domain(T), T}
 -spec shrink(domain(T),T) -> {domain(T), T}.
-shrink(Dom=#?DOM{noshrink=true}, Value) ->
+shrink(Dom=#?DOM{shrink=none}, Value) ->
     {Dom, Value};
 shrink(Domain=#?DOM{shrink=SFun}, Value) ->
     SFun(Domain,Value);
@@ -949,7 +947,7 @@ non_empty(#?DOM{}=Dom) ->
 %% @doc Tell whether the domain can possibly be shrinked.
 %% @private
 -spec is_shrinkable(domain(_)) -> boolean().
-is_shrinkable(#?DOM{noshrink=true}) ->
+is_shrinkable(#?DOM{shrink=none}) ->
     false;
 is_shrinkable(_) ->
     true.
@@ -1186,7 +1184,7 @@ noshrink(Dom) ->
     #?DOM{
         kind=#noshrink{dom=Dom},
         pick=fun noshrink_pick/2,
-        noshrink=true}.
+        shrink=none}.
 
 -spec choose(M::integer(), N::integer()) -> domrec(integer()).
 choose(M,N) when is_integer(M), is_integer(N), M=<N ->
