@@ -653,21 +653,18 @@ pos_integer() ->
 largeint() ->
     #?DOM{
         kind=largeint,
-        shrink=fun(Dom,Val) when Val>1 -> {Dom,Val / 10};
-                  (Dom,Val) when Val<1 -> {Dom,Val / 10};
-                  (Dom,_) -> {Dom,0}
+        shrink=fun(Dom,0) -> {Dom,0};
+                  (Dom,Val) -> {Dom,Val div 10}
                end,
         pick=fun(Dom,SampleSize) ->
-                     {Dom,
-                      ?BIGNUM
-                      * SampleSize * triq_rnd:uniform()
-                      * case triq_rnd:uniform(2) of
-                            2 ->
-                                -1;
-                            1 ->
-                                1
-                        end
-                      }
+                     Val = trunc(?BIGNUM * SampleSize * triq_rnd:uniform()),
+                     Sign = case triq_rnd:uniform(2) of
+                                2 ->
+                                    -1;
+                                1 ->
+                                    1
+                            end,
+                     {Dom, Sign * Val}
              end
        }.
 
