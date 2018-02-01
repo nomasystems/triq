@@ -55,6 +55,9 @@ prop_pos_integer() ->
 prop_non_neg_integer() ->
     ?FORALL(NonNegInt, non_neg_integer(), NonNegInt >= 0).
 
+prop_large_integer() ->
+    ?FORALL(LargeInt, largeint(), erlang:is_integer(LargeInt)).
+
 prop_append() ->
     ?FORALL({Xs,Ys},{list(int()),list(int())},
             ?TRAPEXIT(lists:reverse(Xs++Ys)
@@ -199,6 +202,12 @@ oneof_test() ->
 oneof2_test() ->
     [X] = triq:counterexample(?FORALL(_, oneof([choose(3,7)]), false)),
     3 = X.
+
+%%
+%% Test that largeint() shrinks to 0
+%%
+largeint_shrink_test() ->
+    ?assertEqual([0], triq:counterexample(?FORALL(_, largeint(), false))).
 
 %%
 %% Test that vector doesn't shrink the length
