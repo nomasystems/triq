@@ -7,3 +7,8 @@
 
 Generated edoc is available [[file:edoc/index.html][here]]. The interesting modules are [[file:edoc/triq.html][triq]] and
 [[file:edoc/triq_dom.html][triq_dom]].
+
+** [[file:contributing.org][Contributing to Triq]]
+   :PROPERTIES:
+   :CUSTOM_ID: contributing-to-triq
+   :END:
