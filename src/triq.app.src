@@ -9,6 +9,6 @@
    {build_dependencies, []},
    {env, []},
    {licenses, ["Apache"]},
-   {links, [{"GitHub", "https://github.com/triqng/triq"},
-            {"GitLab", "https://gitlab.com/triqng/triq"}]}
+   {links, [{"Homepage", "https://triq.gitlab.io"},
+            {"GitLab", "https://gitlab.com/triq/triq"}]}
 ]}.
