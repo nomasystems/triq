@@ -163,7 +163,7 @@ non_empty_list_shrink_test() ->
                  [[0]] =:= triq:counterexample(
                            ?FORALL(_, non_empty(list(int())), false))
          end,
-         lists:seq(1, 25))).
+         lists:seq(1, 15))).
 
 %list_shrink2_testx() ->
 %    %% test that a list doesn't easily end in a local 'smallest counterexample'
