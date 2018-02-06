@@ -105,7 +105,7 @@
 -record(noshrink, {dom}).
 -record(suchthat,{dom,pred}).
 -record(bound_domain,{dom1,val1,dom2,fun2,size}).
--record(choose,{min,max}).
+-record(choose,{min,max,shrinkto}).
 -record(elements,{elems,size,picked=none}).
 -record(seal,{dom,seed}).
 -record(unicode_binary, {size, encoding = utf8}).
@@ -597,19 +597,10 @@ int() ->
          }.
 
 int(Max) ->
-    int(0, Max).
+    choose(0, Max).
 
 int(Min, Max) ->
-    Diff = Max - Min,
-    #?DOM{kind=int,
-          shrink=fun(Dom,Val) when Val>0 -> {Dom,Val-1};
-                    (Dom,Val) when Val<0 -> {Dom,Val+1};
-                    (Dom,0) -> {Dom,0}
-                 end,
-          pick=fun(Dom,_SampleSize) ->
-                       {Dom, triq_rnd:uniform(Diff) + Min}
-               end
-         }.
+    choose(Min, Max).
 
 
 -spec byte() -> domrec(integer()).
@@ -1185,7 +1176,12 @@ noshrink(Dom) ->
 
 -spec choose(M::integer(), N::integer()) -> domrec(integer()).
 choose(M,N) when is_integer(M), is_integer(N), M=<N ->
-    #?DOM{kind={choose,M,N},
+    ShrinkTo = case {M>=0, N>=0} of
+        {true, true} -> M;
+        {false, true} -> 0;
+        {false, false} -> N
+    end,
+    #?DOM{kind=#choose{min=M,max=N,shrinkto=ShrinkTo},
           pick = fun choose_pick/2,
           shrink = fun choose_shrink/2
          }.
@@ -1194,9 +1190,28 @@ choose_pick(#?DOM{kind=#choose{min=M,max=N}}=Dom, _) ->
     Value = triq_rnd:uniform(N-M+1) - 1 + M,
     {Dom,Value}.
 
-choose_shrink(#?DOM{kind=#choose{min=M}}=Dom, Value) ->
-    Mid = (Value - M) div 2,
-    {Dom, M + Mid}.
+choose_shrink(#?DOM{kind=#choose{shrinkto=Value}}=Dom, Value) ->
+    {Dom, Value};
+choose_shrink(#?DOM{kind=#choose{shrinkto=ShrinkTo}}=Dom, Value) ->
+    DecrementProb = 2 * math:exp(-0.1 * abs(Value - ShrinkTo)),
+    case triq_rnd:uniform() < DecrementProb of
+        true ->
+            {Dom, choose_shrink_by_decrement(Value, ShrinkTo)};
+        false ->
+            {Dom, choose_shrink_by_half(Value, ShrinkTo)}
+    end.
+
+choose_shrink_by_half(Value, ShrinkTo) ->
+    Mid = (Value - ShrinkTo) div 2,
+    ShrinkTo + Mid.
+
+choose_shrink_by_decrement(Value, ShrinkTo) when Value > ShrinkTo ->
+    Value - 1;
+choose_shrink_by_decrement(Value, ShrinkTo) when Value < ShrinkTo ->
+    Value + 1;
+choose_shrink_by_decrement(Value, Value) ->
+    Value.
+
 
 %% @doc Generates a member of the list `L'.  Shrinks towards the first element
 %% of the list.

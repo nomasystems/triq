@@ -219,7 +219,14 @@ vector_test() ->
 choose_test_() ->
     [?_assertEqual([3], triq:counterexample(?FORALL(_, choose(3,7), false))),
      ?_assertEqual([7], triq:counterexample(?FORALL(I, choose(3,7), I < 7))),
-     ?_assertEqual([3], triq:counterexample(?FORALL(_, choose(3,3), false)))].
+     ?_assertEqual([3], triq:counterexample(?FORALL(_, choose(3,3), false))),
+     ?_assertEqual([0], triq:counterexample(?FORALL(_, choose(-3,7), false))),
+     ?_assertEqual([-3], triq:counterexample(?FORALL(_, choose(-7,-3), false))),
+     ?_assertEqual([0], triq:counterexample(?FORALL(_, choose(-3,0), false))),
+     ?_assertEqual([0], triq:counterexample(?FORALL(_, choose(0,3), false))),
+     ?_assertEqual([1], triq:counterexample(?FORALL(_, choose(1,100), false))),
+     ?_assertEqual([5], triq:counterexample(?FORALL(_, choose(5,1 bsl 80), false))),
+     ?_assertException(error, function_clause, choose(7,3))].
 
 %%
 %% Test binary shrinking
