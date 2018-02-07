@@ -179,8 +179,11 @@ non_empty_list_shrink_test() ->
 %is_pairs_list([X,X|T]) -> is_pairs_list(T);
 %is_pairs_list(_)       -> false.
 
-oneof_test() ->
-    [{X,Y}] = triq:counterexample(
+oneof_test_() ->
+    {
+        timeout, 15,
+        fun() ->
+            [{X,Y}] = triq:counterexample(
                 ?FORALL({X,Y},
                         ?SUCHTHAT({A,B},
                                   {oneof([int(),real()]),
@@ -191,10 +194,12 @@ oneof_test() ->
                             is_integer(X) == is_integer(Y)
                         end
                        )),
-    %% One variable must be equal to 0 and absolute value of the other must not
-    %% be greater than 1.
-    %% Note: 0 == 0.0
-    ?assert((X * Y == 0) and (X + Y /= 0) and (abs(X) + abs(Y) =< 1)).
+            %% One variable must be equal to 0 and absolute value of the other
+            %% must not be greater than 1.
+            %% Note: 0 == 0.0
+            ?assert((X * Y == 0) and (X + Y /= 0) and (abs(X) + abs(Y) =< 1))
+       end
+    }.
 
 %%
 %% This test makes sure that X shrinks only to 3.
