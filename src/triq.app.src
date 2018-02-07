@@ -2,7 +2,7 @@
 %% application.
 {application, triq,
   [{description, "Trifork QuickCheck"},
-   {vsn, "1.0.3"},
+   {vsn, "1.2.0"},
    {registered,[]},
    %% Compiler is needed by triq_rand_compat.
    {applications, [kernel,stdlib,compiler]},
