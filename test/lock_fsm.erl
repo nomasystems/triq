@@ -160,7 +160,7 @@ prop_lock_fsm() ->
        end).
 
 lock_fsm_test_() ->
-    {timeout, 10,
+    {timeout, 20,
      fun() ->
              ?assert(triq:module(?MODULE))
      end}.
