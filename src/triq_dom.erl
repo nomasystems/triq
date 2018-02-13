@@ -1540,7 +1540,7 @@ unicode_binary_pick(#?DOM{kind=#unicode_binary{size=Size, encoding=Encoding},
 unicode_binary_shrink(#?DOM{kind=#unicode_binary{size=Size, encoding=Encoding},
                             empty_ok=EmptyOK}=BinDom, BinValue) ->
     List = unicode:characters_to_list_int(BinValue, utf8),
-    Length = string:len(List),
+    Length = strlen(List),
     AllowSmaller = allow_smaller(Length,Size,EmptyOK),
     case shrink_list_with_elemdom(unicode_char(), List, Length, AllowSmaller) of
         List -> {BinDom, BinValue};
@@ -1549,6 +1549,11 @@ unicode_binary_shrink(#?DOM{kind=#unicode_binary{size=Size, encoding=Encoding},
             {BinDom, NewBin}
     end.
 
+strlen(L) ->
+    case erlang:function_exported(string, length, 1) of
+        true -> string:length(L);
+        false -> apply(string, len, [L])
+    end.
 
 -spec unicode_characters() -> domrec(uchars()).
 unicode_characters() ->

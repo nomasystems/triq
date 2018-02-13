@@ -71,7 +71,8 @@ maybe_gen_eunit(PropPrefix, Forms) ->
     end.
 
 assertion(Name, Line) ->
-    TestName = list_to_atom(string:substr(Name, 6) ++ "_test_"),
+    "prop_" ++ PropName = Name,
+    TestName = list_to_atom(PropName ++ "_test_"),
 
     {function,Line,TestName,0,
      [{clause,Line,[],[],
