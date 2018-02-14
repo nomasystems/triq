@@ -33,7 +33,7 @@ it is under the Apache licence.
 To use =triq=, you can add it as a project dependency and let your
 package manager of choice handle it:
 
-rebar.config: ={triq, "1.*"}=
+rebar.config: ={deps, [triq]}=
 
 erlang.mk: =DEPS = triq=
 
