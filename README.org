@@ -8,9 +8,11 @@
    :CUSTOM_ID: introduction
    :END:
 
-By and large, the Triq API is modeled closely after QuviQ =eqc=, except you
-want to replace any occurrence of =eqc= with =triq=. The main supporting module
-is called =triq_dom=, corresponding to eqc's =eqc_gen=.
+Triq is an Apache licensed QuickCheck library for Erlang. By and
+large, the Triq API is modeled closely after QuviQ =eqc=, except you
+want to replace any occurrence of =eqc= with =triq=. The main
+supporting module is called =triq_dom=, corresponding to eqc's
+=eqc_gen=.
 
 #+BEGIN_EXPORT html
 <a href="https://gitlab.com/triq/triq/pipelines"><img src="https://gitlab.com/triq/triq/badges/master/pipeline.svg"></a>
@@ -18,7 +20,7 @@ is called =triq_dom=, corresponding to eqc's =eqc_gen=.
 
 This is a fork of Triq that is being run under the ZeroMQ collaboration
 rules, https://rfc.zeromq.org/spec:22 with the one exception being that
-it is under the Apache licence.
+it is under the Apache license.
 
 ** Obtaining Triq
    :PROPERTIES:
