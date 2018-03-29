@@ -80,7 +80,7 @@ To write properties with =triq=, include the =triq.hrl= header file:
 Modules compiled with the =triq.hrl= header auto-export all functions
 named =prop_*=, and have a function added called =check/0= which runs
 =triq:check/1= on all the properties in the module. Further, adding
-the attribute =-triq(eunit).= will generate EUnit tests for all
+the attribute =-triq(eunit)= will generate EUnit tests for all
 properties, turning the module into a regular EUnit test suite.
 
 We highly recommend letting Triq generate EUnit tests, thus arriving
@@ -113,5 +113,9 @@ file "triq_demo.app"
 =======================================================
   Test passed.
 #+END_EXAMPLE
+
+If you use =-triq({eunit, [{runs, N}]})=, then Triq will do =N= runs for each
+property in the module, which is equivalent to calling =triq:check(Module, N)=.
+This can be useful to make Triq try more (or less) cases than the default.
 
 For advanced features, please consult the API docs.

@@ -52,6 +52,15 @@ t_form({function, _L, Name, 0, _Cs}, S, PropPrefix) ->
 t_form(_, S, _) ->
     S.
 
+gen_eunit(Forms, PropPrefix, Opts) ->
+    EUnitGen = fun(Form, Set) ->
+                       t_eunit_form(Form, Set, PropPrefix, Opts)
+               end,
+    sets:to_list(lists:foldl(EUnitGen, sets:new(), Forms)).
+
+lists_last([]) -> [];
+lists_last(L) -> lists:last(L).
+
 maybe_gen_eunit(PropPrefix, Forms) ->
     TriqAttrs = lists:foldl(
                   fun({attribute,_,triq,Val}, Acc) ->
@@ -60,19 +69,31 @@ maybe_gen_eunit(PropPrefix, Forms) ->
                           Acc
                   end,
                   [], Forms),
-    case proplists:get_bool(eunit, TriqAttrs) of
-        true ->
-            EUnitGen = fun(Form, Set) ->
-                               t_eunit_form(Form, Set, PropPrefix)
-                       end,
-            sets:to_list(lists:foldl(EUnitGen, sets:new(), Forms));
-        false ->
+    Attrs = lists_last(proplists:lookup_all(eunit, TriqAttrs)),
+    case Attrs of
+        {eunit, true} ->
+            gen_eunit(Forms, PropPrefix, []);
+        {eunit, Opts} ->
+            gen_eunit(Forms, PropPrefix, Opts);
+        _ ->
             []
     end.
 
-assertion(Name, Line) ->
+check_args(Name, Line, Opts) ->
+    case lists_last(proplists:lookup_all(runs, Opts)) of
+        [] ->
+            F = [{call,Line,{atom,Line,list_to_atom(Name)},[]}],
+            {F, "triq : check ( "++Name++" ( ) )"};
+        {runs, Runs} ->
+            F = [{call,Line,{atom,Line,list_to_atom(Name)},[]},
+                 {integer,Line,Runs}],
+            {F, "triq : check ( "++Name++" ( ), "++integer_to_list(Runs)++" )"}
+    end.
+
+assertion(Name, Line, Opts) ->
     "prop_" ++ PropName = Name,
     TestName = list_to_atom(PropName ++ "_test_"),
+    {CheckArgs, CheckCallStr} = check_args(Name, Line, Opts),
 
     {function,Line,TestName,0,
      [{clause,Line,[],[],
@@ -92,7 +113,7 @@ assertion(Name, Line) ->
                         [{'case',Line,
                           {call,Line,
                            {remote,Line,{atom,Line,triq},{atom,Line,check}},
-                           [{call,Line,{atom,Line,list_to_atom(Name)},[]}]},
+                           CheckArgs},
                           [{clause,Line,[{atom,Line,true}],[],[{atom,Line,ok}]},
                            {clause,Line,
                             [{var,Line,'__V'}],
@@ -110,8 +131,7 @@ assertion(Name, Line) ->
                                    {cons,Line,
                                     {tuple,Line,
                                      [{atom,Line,expression},
-                                      {string,Line,
-                                       "triq : check ( "++Name++" ( ) )"}]},
+                                      {string,Line,CheckCallStr}]},
                                     {cons,Line,
                                      {tuple,Line,
                                       [{atom,Line,expected},{atom,Line,true}]},
@@ -141,16 +161,16 @@ add_eunit([],_Eunit ) ->
     [].
 
 
-t_eunit_form({function, L, Name, 0, _Cs}, S, PropPrefix) ->
+t_eunit_form({function, L, Name, 0, _Cs}, S, PropPrefix, Opts) ->
     N = atom_to_list(Name) ,
     case lists:prefix(PropPrefix, N) of
         true ->
-            Assertion = assertion(N, L),
+            Assertion = assertion(N, L, Opts),
             sets:add_element(Assertion, S);
         false ->
             S
     end;
-t_eunit_form(_, S, _) ->
+t_eunit_form(_, S, _, _) ->
     S.
 
 t_rewrite([{attribute,_,module,{Name,_Ps}}=M | Fs], Exports) ->
