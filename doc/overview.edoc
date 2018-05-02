@@ -4,6 +4,8 @@
 QuviQ eqc. The easiest way to integrate it in your tests is to write properties
 as you're used, replace the header include with that of triq, and then add the
 <tt>-triq(eunit).</tt> attribute in the module. This will generate the needed
-EUnit glue in order to test the properties anytime you run EUnit.
-Alternatively, you can run <tt>rebar triq</tt> or <tt>rebar qc</tt> (given
-correct <tt>rebar.config</tt> settings).
+EUnit glue in order to test the properties anytime you run EUnit. If you use
+<tt>-triq({eunit, [{runs, N}]})</tt>, then Triq will do <tt>N</tt> runs for
+each property in the module, which is equivalent to calling
+<tt>triq:check(Module, N)</tt>. This can be useful to make Triq try more (or
+less) cases than the default.
