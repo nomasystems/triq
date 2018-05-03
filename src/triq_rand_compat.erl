@@ -4,6 +4,7 @@
 %% This file is part of Triq - Trifork QuickCheck
 %%
 %% Copyright (c) 2016 Tuncer Ayaz
+%% Copyright 2016-2018 Triq authors
 %%
 %% Licensed under the Apache License, Version 2.0 (the "License");
 %% you may not use this file except in compliance with the License.
