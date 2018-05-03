@@ -6,12 +6,49 @@ case crypto:start() of
         ok;
     ok ->
         ok
-end,
-case erlang:function_exported(crypto, strong_rand_bytes, 1) of
-    true ->
-        {value, {erl_opts, ErlOpts}} = lists:keysearch(erl_opts, 1, CONFIG),
-        NewErlOpts = [{d, 'HAVE_CRYPTO_STRONG_RAND_BYTES'}] ++ ErlOpts,
-        lists:keyreplace(erl_opts, 1, CONFIG, {erl_opts, NewErlOpts});
-    false ->
-        CONFIG
 end.
+
+AddErlcDefines = fun(Cfg, Defines) ->
+                         {value, {erl_opts, ErlOpts}} =
+                             lists:keysearch(erl_opts, 1, Cfg),
+                         NewOpts = Defines ++ ErlOpts,
+                         lists:keyreplace(erl_opts, 1, Cfg, {erl_opts, NewOpts})
+                 end.
+
+CryptoCheck = fun(Cfg) ->
+                      case erlang:function_exported(
+                             crypto, strong_rand_bytes, 1)
+                      of
+                          true ->
+                              D = [{d, 'HAVE_CRYPTO_STRONG_RAND_BYTES'}],
+                              AddErlcDefines(Cfg, D);
+                          false ->
+                              Cfg
+                      end
+              end.
+
+StacktraceCheck = fun(Cfg) ->
+                          case erlang:system_info(otp_release) >= "21" of
+                              true ->
+                                  D = [{d, 'HAVE_STACKTRACE_MATCH'}],
+                                  AddErlcDefines(Cfg, D);
+                              false ->
+                                  Cfg
+                          end
+                  end.
+
+Config1 = CryptoCheck(CONFIG).
+Config2 = StacktraceCheck(Config1).
+
+MaybeReportConfig = fun(Cfg) ->
+                            case os:getenv("DEBUG_CONFIG") of
+                                false ->
+                                    Cfg;
+                                _ ->
+                                    io:format(standard_error,
+                                              "rebar config:~n~p~n", [Cfg]),
+                                    Cfg
+                            end
+                    end.
+
+MaybeReportConfig(Config2).
