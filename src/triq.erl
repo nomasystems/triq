@@ -75,6 +75,21 @@ shrink_count(Domain) ->
             0
     end.
 
+-ifdef(HAVE_STACKTRACE_MATCH).
+-define(STACK_REPORT(Fun, Input, IDom, QCT, Count),
+        Class:Exception:Stacktrace ->
+               report(fail, {Class, Exception, Stacktrace}, QCT#triq.shrinking),
+               {failure, Fun, Input, IDom,
+                QCT#triq{count=Count+1,result={'EXIT',Exception}}}).
+-else.
+-define(STACK_REPORT(Fun, Input, IDom, QCT, Count),
+        Class:Exception ->
+               report(fail, {Class, Exception, erlang:get_stacktrace()},
+                      QCT#triq.shrinking),
+               {failure, Fun, Input, IDom,
+                QCT#triq{count=Count+1,result={'EXIT',Exception}}}).
+-endif.
+
 check_input(Fun,Input,IDom,#triq{count=Count}=QCT) ->
     try Fun(Input) of
         true ->
@@ -178,11 +193,7 @@ check_input(Fun,Input,IDom,#triq{count=Count}=QCT) ->
             {failure, Fun, Input, IDom, QCT#triq{count=Count+1,result=Any}}
 
     catch
-        Class : Exception ->
-            report(fail, {Class, Exception, erlang:get_stacktrace()}, QCT#triq.shrinking),
-            {failure, Fun, Input, IDom, QCT#triq{count=Count+1,
-                                                 result={'EXIT',Exception}}}
-
+        ?STACK_REPORT(Fun, Input, IDom, QCT, Count)
     end.
 
 
