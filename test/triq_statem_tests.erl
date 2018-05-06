@@ -19,7 +19,7 @@
 %% limitations under the License.
 %%
 
--module(pdict_statem).
+-module(triq_statem_tests).
 
 -export([ initial_state/0
         , key/0
@@ -41,9 +41,9 @@
 
 prop_pdict_statem() ->
     ?FORALL(Cmds,
-            triq_statem:commands(pdict_statem),
+            triq_statem:commands(?MODULE),
             begin
-                triq_statem:run_commands(pdict_statem, Cmds),
+                triq_statem:run_commands(?MODULE, Cmds),
                 true
             end).
 
