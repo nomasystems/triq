@@ -3,7 +3,6 @@
 %%
 %% This file is part of Triq - Trifork QuickCheck
 %%
-%% Copyright (c) 2013-2017 Tuncer Ayaz
 %% Copyright 2013-2018 Triq authors
 %%
 %% Licensed under the Apache License, Version 2.0 (the "License");
@@ -23,8 +22,15 @@
 %% http://www.erlang.org/doc/design_principles/fsm.html
 %%
 
--module(lock_fsm).
+-module(triq_gen_fsm_tests).
 -behaviour(gen_fsm).
+
+%% Silence gen_fsm deprecation warnings.
+-compile({nowarn_deprecated_function,
+          [ {gen_fsm,start,4}
+          , {gen_fsm,send_all_state_event,2}
+          , {gen_fsm,send_event,2}
+          ]}).
 
 -export([start/1,
          stop/0,
