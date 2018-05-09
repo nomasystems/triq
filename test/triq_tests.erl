@@ -56,6 +56,13 @@ prop_pos_integer() ->
 prop_non_neg_integer() ->
     ?FORALL(NonNegInt, non_neg_integer(), NonNegInt >= 0).
 
+non_neg_integer_can_be_zero_test() ->
+    [0] = triq:counterexample(
+            ?FORALL(
+               I,
+               non_neg_integer(),
+               I > 0)).
+
 prop_large_integer() ->
     ?FORALL(LargeInt, largeint(), erlang:is_integer(LargeInt)).
 

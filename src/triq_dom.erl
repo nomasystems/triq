@@ -619,7 +619,7 @@ non_neg_integer() ->
                   (Dom,0) -> {Dom,0}
                end,
         pick=fun(Dom,SampleSize) ->
-                     {Dom, abs(triq_rnd:uniform(SampleSize)) + 0}
+                     {Dom, triq_rnd:uniform(SampleSize) - 1}
              end
        }.
 
