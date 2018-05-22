@@ -18,9 +18,9 @@ supporting module is called =triq_dom=, corresponding to eqc's
 <a href="https://gitlab.com/triq/triq/pipelines"><img src="https://gitlab.com/triq/triq/badges/master/pipeline.svg"></a>
 #+END_EXPORT
 
-This is a fork of Triq that is being run under the ZeroMQ collaboration
-rules, https://rfc.zeromq.org/spec:22 with the one exception being that
-it is under the Apache license.
+This is a fork of Triq that is being run under the
+[[https://rfc.zeromq.org/spec:22][ZeroMQ collaboration rules]] with the one
+exception being that it is under the Apache license.
 
 ** Obtaining Triq
    :PROPERTIES:
@@ -51,10 +51,9 @@ source into your Erlang installation by adding it in one of your
 =$ERL_LIBS= paths. So, it's either somewhere like
 =/usr/lib/erlang/lib= or =$HOME/.erl=.
 
-You can either download a tagged release from
-=https://gitlab.com/triq/triq/tags= and extract that or clone the
-git repo =https://gitlab.com/triq/triq= in the target directory. Once
-that's done, cd into the directory and run =make=.
+You can either download a [[https://gitlab.com/triq/triq/tags][tagged release]]
+and extract that or clone the [[https://gitlab.com/triq/triq][git repo]] in the
+target directory. Once that's done, cd into the directory and run =make=.
 
 Now, if you start =erl=, you should be able to call functions from the
 =triq= module.
