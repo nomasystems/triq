@@ -18,10 +18,6 @@ supporting module is called =triq_dom=, corresponding to eqc's
 <a href="https://gitlab.com/triq/triq/pipelines"><img src="https://gitlab.com/triq/triq/badges/master/pipeline.svg"></a>
 #+END_EXPORT
 
-This is a fork of Triq that is being run under the
-[[https://rfc.zeromq.org/spec:22][ZeroMQ collaboration rules]] with the one
-exception being that it is under the Apache license.
-
 ** Writing QuickCheck properties with Triq
     :PROPERTIES:
     :CUSTOM_ID: writing-properties-with-triq
