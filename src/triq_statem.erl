@@ -17,7 +17,6 @@
 %% WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 %% See the License for the specific language governing permissions and
 %% limitations under the License.
-%%
 
 %% TODO: Share code with triq_statem_fsm. Until then make sure you
 %% apply any changes to triq_statem_fsm as well.

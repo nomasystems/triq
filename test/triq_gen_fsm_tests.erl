@@ -20,7 +20,6 @@
 %%
 %% Trivial gen_fsm based on example from gen_fsm Users' Guide
 %% http://www.erlang.org/doc/design_principles/fsm.html
-%%
 
 -module(triq_gen_fsm_tests).
 -behaviour(gen_fsm).
