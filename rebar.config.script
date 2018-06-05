@@ -15,6 +15,16 @@ AddErlcDefines = fun(Cfg, Defines) ->
                          lists:keyreplace(erl_opts, 1, Cfg, {erl_opts, NewOpts})
                  end.
 
+RandCheck = fun(Cfg) ->
+                    case code:which(rand) of
+                        non_existing ->
+                            Cfg;
+                        _ ->
+                            D = [{d, 'HAVE_RAND_MOD'}],
+                            AddErlcDefines(Cfg, D)
+                        end
+            end.
+
 CryptoCheck = fun(Cfg) ->
                       case erlang:function_exported(
                              crypto, strong_rand_bytes, 1)
@@ -37,7 +47,8 @@ StacktraceCheck = fun(Cfg) ->
                           end
                   end.
 
-Config1 = CryptoCheck(CONFIG).
+Config0 = RandCheck(CONFIG).
+Config1 = CryptoCheck(Config0).
 Config2 = StacktraceCheck(Config1).
 
 MaybeReportConfig = fun(Cfg) ->
