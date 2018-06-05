@@ -59,13 +59,6 @@
                body,
                values=[]}).
 
--on_load(load_rand_module/0).
-
-%% Make sure triq_rnd module is generated, compiled, and loaded
-load_rand_module() ->
-    {ok, triq_rnd} = triq_rand_compat:init("triq_rnd"),
-    ok.
-
 shrink_count(Domain) ->
     case triq_dom:is_shrinkable(Domain) of
         true ->
