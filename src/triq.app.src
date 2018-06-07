@@ -1,5 +1,5 @@
 {application, triq,
-  [{description, "Trifork QuickCheck"},
+  [{description, "Triq (Term Reductive Invariant Questant) QuickCheck"},
    {vsn, "1.2.0"},
    {registered,[]},
    {applications, [kernel,stdlib]},

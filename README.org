@@ -8,10 +8,14 @@
    :CUSTOM_ID: introduction
    :END:
 
-Triq is an Apache licensed QuickCheck library for Erlang. By and
-large, the Triq API is modeled closely after QuviQ =eqc=, except you
-want to replace any occurrence of =eqc= with =triq=. The main
-supporting module is called =triq_dom=, corresponding to eqc's
+Triq (Term Reductive Invariant Questant) is an Apache licensed
+QuickCheck library for Erlang. It is a continuation and community fork
+of [[https://github.com/krestenkrab/triq][Trifork QuickCheck]]. Unlike the original project, this fork is in
+*no way* affiliated with or a product of Trifork.
+
+By and large, the Triq API is modeled closely after QuviQ =eqc=,
+except you want to replace any occurrence of =eqc= with =triq=. The
+main supporting module is called =triq_dom=, corresponding to eqc's
 =eqc_gen=.
 
 #+BEGIN_EXPORT html
