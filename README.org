@@ -39,8 +39,9 @@ named =prop_*=, and have a function added called =check/0= which runs
 the attribute =-triq(eunit)= will generate EUnit tests for all
 properties, turning the module into a regular EUnit test suite.
 
-We highly recommend letting Triq generate EUnit tests, thus arriving
-at a demo module like this:
+If you use erlang.mk, you will typically want to use [[https://erlang.mk/guide/triq.html][the built-in Triq
+plugin]] to check properties. Otherwise we highly recommend letting Triq
+generate EUnit tests, thus arriving at a demo module like this:
 
 #+BEGIN_EXAMPLE erlang
 -module(triq_demo).
