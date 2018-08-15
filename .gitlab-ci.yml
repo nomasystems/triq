@@ -14,7 +14,7 @@
 
 variables:
   GIT_DEPTH: "3"
-  DEFAULT_IMAGE: erlang:20-alpine
+  DEFAULT_IMAGE: erlang:21-alpine
 
 pages:
   stage: deploy
@@ -87,6 +87,12 @@ test:19:
   image: erlang:19
 
 test:20:
+  <<: *test_job_definition
+  before_script:
+    - apk add --update make
+  image: erlang:20-alpine
+
+test:21:
   <<: *test_job_definition
   before_script:
     - apk add --update make
