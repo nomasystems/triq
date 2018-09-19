@@ -1,5 +1,5 @@
-@author Kresten Krab Thorup <krab@trifork.com>
-@copyright 2010 Trifork A/S
+@author Kresten Krab Thorup <krab@trifork.com>, Triq Authors
+@copyright 2010-2013 Trifork A/S, 2013-2018 Triq Authors
 @doc Triq is a QuickCheck library for Erlang that works similar to PropEr and
 QuviQ eqc. The easiest way to integrate it in your tests is to write properties
 as you're used, replace the header include with that of triq, and either use <a
