@@ -10,8 +10,8 @@
 
 Triq (Term Reductive Invariant Questant) is an Apache licensed
 QuickCheck library for Erlang. It is a continuation and community fork
-of [[https://github.com/krestenkrab/triq][Trifork QuickCheck]]. Unlike the original project, this fork is in
-*no way* affiliated with or a product of Trifork.
+of [[https://github.com/krestenkrab/triq][Trifork QuickCheck]]. This fork is in *no way* affiliated with or a
+product of Trifork.
 
 | Homepage | [[https://triq.gitlab.io]]       |
 | Hex.pm   | [[https://hex.pm/packages/triq]] |
