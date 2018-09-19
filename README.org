@@ -90,11 +90,9 @@ For advanced features, please consult the API docs.
 To use =triq=, you can add it as a project dependency and let your
 package manager of choice handle it:
 
-rebar.config: ={deps, [triq]}=
-
-erlang.mk: =DEPS = triq=
-
-mix.exs: ={:triq, "~> 1.*"}=
+| rebar.config | ={deps, [triq]}=    |
+| erlang.mk    | =DEPS = triq=       |
+| mix.exs      | ={:triq, "~> 1.*"}= |
 
 *** Installation from source into =$ERL_LIBS=
     :PROPERTIES:
