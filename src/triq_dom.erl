@@ -632,7 +632,7 @@ pos_integer() ->
                   (Dom,1) -> {Dom,1}
                end,
         pick=fun(Dom,SampleSize) ->
-                     {Dom, abs(triq_rnd:uniform(SampleSize)) + 1}
+                     {Dom, triq_rnd:uniform(SampleSize)}
              end
        }.
 
