@@ -1,4 +1,4 @@
-# Copyright (c) 2016-2018 Tuncer Ayaz
+# Copyright (c) 2016-2019 Tuncer Ayaz
 #
 # Permission to use, copy, modify, and/or distribute this software for any
 # purpose with or without fee is hereby granted, provided that the above
@@ -14,7 +14,7 @@
 
 variables:
   GIT_DEPTH: "3"
-  DEFAULT_IMAGE: erlang:21-alpine
+  DEFAULT_IMAGE: erlang:22-alpine
 
 pages:
   stage: deploy
@@ -74,10 +74,6 @@ release:
   script:
     - make ci
 
-test:17:
-  <<: *test_job_definition
-  image: erlang:17
-
 test:18:
   <<: *test_job_definition
   image: erlang:18
@@ -93,6 +89,12 @@ test:20:
   image: erlang:20-alpine
 
 test:21:
+  <<: *test_job_definition
+  before_script:
+    - apk add --update make
+  image: erlang:21-alpine
+
+test:22:
   <<: *test_job_definition
   before_script:
     - apk add --update make
