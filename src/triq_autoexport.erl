@@ -96,6 +96,7 @@ assertion(Name, Line, Opts) ->
     "prop_" ++ PropName = Name,
     TestName = list_to_atom(PropName ++ "_test_"),
     {CheckArgs, CheckCallStr} = check_args(Name, Line, Opts),
+    {LineNum, Col} = Line,
 
     {function,Line,TestName,0,
      [{clause,Line,[],[],
@@ -103,7 +104,7 @@ assertion(Name, Line, Opts) ->
          [{atom,Line,timeout},
           {integer,Line,3600},
           {tuple,Line,
-           [{integer,Line,Line},
+           [{integer,Line,LineNum},
             {'fun',Line,
              {clauses,
               [{clause,Line,[],[],
@@ -129,7 +130,10 @@ assertion(Name, Line, Opts) ->
                                    [{atom,Line,module},{atom,Line,mutations}]},
                                   {cons,Line,
                                    {tuple,Line,
-                                    [{atom,Line,line},{integer,Line,Line}]},
+                                    [{atom,Line,line},{integer,Line,LineNum}]},
+                                   {cons,Line,
+                                    {tuple,Line,
+                                     [{atom,Line,col},{integer,Line,Col}]},
                                    {cons,Line,
                                     {tuple,Line,
                                      [{atom,Line,expression},
@@ -152,7 +156,7 @@ assertion(Name, Line, Opts) ->
                                            [{tuple,Line,
                                              [{atom,Line,not_a_boolean},
                                               {var,Line,'__V'}]}]}]}]},
-                                      {nil,Line}}}}}}]}]}]}]}]}]}},
+                                      {nil,Line}}}}}}}]}]}]}]}]}]}},
                     []}]}]}]}}]}]}]}]}.
 
 add_eunit([Form|[]], Eunit) ->
