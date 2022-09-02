@@ -1521,7 +1521,7 @@ unicode_binary(Size, Encoding) ->
 
 unicode_binary_pick(#?DOM{kind=#unicode_binary{size=Size, encoding=Encoding},
                           empty_ok=EmptyOK}=BinDom, SampleSize)
-  when SampleSize > 1 ->
+  when SampleSize > 0 ->
     Sz = case Size of
              any ->
                  case EmptyOK of
