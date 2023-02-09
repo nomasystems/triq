@@ -910,7 +910,7 @@ shrink_list_members_generic(#?DOM{}=ElemDom, List, Len, HowMany) ->
 
 shrink_list_N(_, List, _, 0) -> List;
 shrink_list_N(#?DOM{}=ElemDom, List, Len, N) ->
-    ?assert(Len == strlen(List)),
+    ?assert(Len == length(List)),
 
     %%
     %% replace element at RemIdx with simplified one
