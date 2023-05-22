@@ -1448,17 +1448,15 @@ unicode_char() ->
                 {Dom, random_unicode_char()}
         end,
     S = fun(Dom,V) ->
-                NewV = case (V - triq_rnd:uniform(?UNICODE_CHAR_SHRINK_STEP)) of
-                           X when X < 0 -> V;
-                           X when X >= 16#D800, X =< 16#DFFF ->
-                               %% skip surrogates.
-                               16#D799;
-                           X when X =:= 16#FFFF; X =:= 16#FFFE ->
-                               16#FFFD;
-                           X -> X
-                       end,
-
-                {Dom, NewV}
+            NewV = case V of
+                X1 when X1 >= 16#010000, X1 =< 16#10FFFF ->
+                    triq_rnd:uniform(16#FFFD - 16#E000) + 16#E000;
+                X2 when X2 >= 16#E000, X2 =< 16#FFFD ->
+                    triq_rnd:uniform(16#D7FF - 16#A0) + 16#A0;
+                _X3 ->
+                    triq_rnd:uniform(16#7E - 16#20) + 16#20
+            end,
+            {Dom, NewV}
         end,
 
     #?DOM{
