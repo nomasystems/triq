@@ -476,7 +476,7 @@ shrink_loop(Fun,Input,InputDom,GS,Context,Tested) ->
 %% @spec equals( term(), term() ) -> boolean()
 %% @end
 %%-------------------------------------------------------------------
-equals(_X, _X) ->
+equals(X, X) ->
     true;
 equals(_X, _Y) ->
     false.
