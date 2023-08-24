@@ -2,9 +2,9 @@ name: triq ci
 
 on:
   push:
-    branches: [main]
+    branches: [master]
   pull_request:
-    branches: [main]
+    branches: [master]
 
 env:
   OTP-VERSION: 25.2.3
