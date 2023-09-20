@@ -57,7 +57,7 @@ prop_unicode_binary() ->
 %% Check a binary generator with fixed length.
 prop_sized_unicode_binary() ->
     ?FORALL({Len, Bin}, ?LET(Len, byte(), {Len, unicode_binary(Len)}),
-            equals(Len, length(unicode:characters_to_list(Bin)))).
+            equals(Len, string:length(Bin))).
 
 
 %% Check, that the `characters_to_list/1' does not fail.

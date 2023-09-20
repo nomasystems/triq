@@ -1466,15 +1466,14 @@ unicode_char() ->
 
 -spec random_unicode_char() -> uchar().
 random_unicode_char() ->
-    case (triq_rnd:uniform(16#10FFFF + 1) - 1) of
-        C when C >= 16#D800 andalso C =< 16#DFFF ->
-            %% surrogates
+    Int = triq_rnd:uniform(16#10FFFF + 1) - 1,
+    case unicode:characters_to_binary([Int]) of
+        {error, _Bin, _RestData} ->
             random_unicode_char();
-        16#FFFF ->
+        {incomplete, _Bin1, _Bin2} ->
             random_unicode_char();
-        16#FFFE ->
-            random_unicode_char();
-        C -> C
+        _Bin ->
+            Int
     end.
 
 
@@ -1520,37 +1519,42 @@ unicode_binary(Size, Encoding) ->
 unicode_binary_pick(#?DOM{kind=#unicode_binary{size=Size, encoding=Encoding},
                           empty_ok=EmptyOK}=BinDom, SampleSize)
   when SampleSize > 0 ->
-    Sz = case Size of
-             any ->
-                 case EmptyOK of
-                     true ->
-                         triq_rnd:uniform(SampleSize)-1;
-                     false ->
-                         triq_rnd:uniform(SampleSize)
-                 end;
-             Size ->
-                 Size
-         end,
+    Sz =
+        case {Size, EmptyOK} of
+            {any, true} ->
+                triq_rnd:uniform(SampleSize) - 1;
+            {any, false} ->
+                triq_rnd:uniform(SampleSize);
+            {Size, EmptyOK} ->
+                Size
+        end,
     CharList = foldn(fun(T) -> [random_unicode_char() | T] end, [], Sz),
     BinValue = unicode:characters_to_binary(CharList, unicode, Encoding),
-    {BinDom, BinValue}.
+    case catch string:length(BinValue) of
+        Sz ->
+            {BinDom, BinValue};
+        _Otherwise ->
+            unicode_binary_pick(BinDom, SampleSize)
+    end.
 
 unicode_binary_shrink(#?DOM{kind=#unicode_binary{size=Size, encoding=Encoding},
                             empty_ok=EmptyOK}=BinDom, BinValue) ->
     List = unicode:characters_to_list_int(BinValue, utf8),
-    Length = strlen(List),
-    AllowSmaller = allow_smaller(Length,Size,EmptyOK),
-    case shrink_list_with_elemdom(unicode_char(), List, Length, AllowSmaller) of
-        List -> {BinDom, BinValue};
+    Size2 = string:length(BinValue),
+    AllowSmaller = allow_smaller(Size2, Size, EmptyOK),
+    case shrink_list_with_elemdom(unicode_char(), List, Size2, AllowSmaller) of
+        List ->
+            {BinDom, BinValue};
         NewList ->
             NewBin = unicode:characters_to_binary(NewList, unicode, Encoding),
-            {BinDom, NewBin}
-    end.
-
-strlen(L) ->
-    case erlang:function_exported(string, length, 1) of
-        true -> string:length(L);
-        false -> apply(string, len, [L])
+            case catch {string:length(NewBin), AllowSmaller} of
+                {Size2, _AllowSmaller} ->
+                    {BinDom, NewBin};
+                {Size3, true} when is_integer(Size3) andalso Size3 < Size2 ->
+                    {BinDom, NewBin};
+                _Otherwise ->
+                    unicode_binary_shrink(BinDom, BinValue)
+            end
     end.
 
 -spec unicode_characters() -> domrec(uchars()).
